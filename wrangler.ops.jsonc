@@ -1,0 +1,11 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "phinix-plugin-operations-local",
+  "main": "ops/local-bridge.mjs",
+  "compatibility_date": "2026-10-03",
+  "account_id": "0a5846aaeab66b9368b987da73865226",
+  "workers_dev": false,
+  "preview_urls": false,
+  "dev": { "ip": "127.0.0.1", "port": 18787, "local_protocol": "http" },
+  "services": [{ "binding": "REPOSITORY_OPERATIONS", "service": "phinix-plugin-repository-poc", "entrypoint": "RepositoryOperations", "remote": true }]
+}

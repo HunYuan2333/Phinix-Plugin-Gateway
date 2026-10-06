@@ -1,0 +1,48 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "phinix-plugin-repository-staging",
+  "account_id": "0a5846aaeab66b9368b987da73865226",
+  "main": "src/read-only.mjs",
+  "compatibility_date": "2026-10-03",
+  "workers_dev": false,
+  "preview_urls": false,
+  "routes": [
+    {
+      "pattern": "plugins.hunyuan2333.com",
+      "custom_domain": true,
+      "zone_name": "hunyuan2333.com"
+    },
+    {
+      "pattern": "plugins-staging.hunyuan2333.com",
+      "custom_domain": true,
+      "zone_name": "hunyuan2333.com"
+    }
+  ],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": false
+    }
+  },
+  "vars": {
+    "BUILD_ID": "production-20261006-read-only",
+    "POC_MODE": "false",
+    "R2_ENABLED": "false",
+    "ORIGIN_METADATA_CACHE_SECONDS": "30",
+    "SOURCES": "[{\"sourceId\":\"phinix.official\",\"repository\":\"HunYuan2333/Phinix-Plugin-Index\",\"repositoryId\":\"1402564805\",\"ownerId\":\"64630568\",\"publicationBranch\":\"main\"}]",
+    "REPOSITORY_ENABLED": "true"
+  },
+  "ratelimits": [
+    {
+      "name": "REQUEST_LIMITER",
+      "namespace_id": "233310041",
+      "simple": {
+        "limit": 30,
+        "period": 60
+      }
+    }
+  ]
+}

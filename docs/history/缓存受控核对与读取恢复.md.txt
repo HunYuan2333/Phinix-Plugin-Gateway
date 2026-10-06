@@ -1,0 +1,35 @@
+# 缓存受控核对与读取恢复
+
+日期：2026-10-04。分支：`dev`。[English](CacheRecovery.md)。本批为隔离 repository PoC 增加账号内部运维工具；没有修改客户端/框架 API、Trade 状态、物品所有权、正式索引或批准记录。
+
+## 已交付
+
+`RepositoryOperations` 是命名 WorkerEntrypoint，调用既有单例 SQLite DO。[命令及使用说明](../../../../Extensions/PluginStore/RepositoryWorker/ops/README.zh-CN.md) 使用标准 Wrangler 登录、本机 loopback 桥接和 strict 有界 JSON；公网 gateway 没有管理路由。PoC 显式开启 `CACHE_OPERATIONS_ENABLED`，默认继续关闭。检查导出一个 SQL 快照、条目 fingerprint 和最近 64 条持久日志，不访问 R2；Python 创建新的 0600 文件，不覆盖旧证据。
+
+显式确认仅接受过期、没有活跃写入、身份/lease/fingerprint 与检查快照相同的 writing/uncertain 对象。SQL 先预扣一次 Class B GET；存储元数据/长度/checksum 和逐字节增量 SHA-256 都通过后，按原条目比较并提交 `verified`。它可读但仍计预留、不可淘汰、不可再次填充；已暂停账本保持暂停。查询/body/hash 超时、体积边界、并发、快照变化、对象缺失/损坏、预算耗尽及 SQL 故障均保留原容量预留和历史计数。没有释放容量、任意 SQL、删除/purge、清零、周期滚动或初始化修复功能。
+
+`cache.recovery_bytes_verified` 只说明字节通过，`cache.recovery_confirmed` 在 SQL 提交之后输出；持久 journal 与外部 request/lease/period 日志关联失败。自定义日志不输出任意异常、URL 或凭据。原生测试发现 RPC 序列化缺口：strict JSON 返回 null-prototype map，桥接须先转换为普通可序列化对象。
+
+## 验证命令与部署
+
+从 `Extensions/PluginStore/RepositoryWorker` 执行：
+
+```sh
+npm test
+python3 tests/ops-cli.test.py
+WRANGLER_LOG_PATH=/tmp/phinix-worker-wrangler-logs WRANGLER_SEND_METRICS=false timeout 45s npm run test:native
+```
+
+三条命令退出码均为 0。另外四项本机 CLI 集成测试验证 0600 导出/拒绝覆盖、计划不联网、显式确认固定身份、拒绝超大/错目标快照及外部地址；使用本机 HTTP 替身，不证明云端登录/调用成功。Worker 回归 **101 项通过**，其中原有 77 项、新增 24 项恢复用例。完整原生流程先 dry-run 两个 bundle，再验证真实 workerd、SQLite DO、R2、本机桥接→命名 WorkerEntrypoint→DO 检查，以及实际原生 R2 put 后注入确认丢失→租约过期→verified 读取；恢复前后容量合计不变。故障注入使用独立本地桶，不在任何部署配置中。预期的损坏流会产生运行时诊断；harness 检查拒绝结果后成功退出。
+
+标准 `wrangler deploy -c wrangler.poc.jsonc --secrets-file <私有文件> --autoconfig=false` 部署成功：build `poc-20261004-d1e140659fae`，源 SHA-256 `d1e140659fae6cc084b4d699251425a228672dd3e17309a2ef63e296c7095bd3`，version `d83b7712-c32b-4c89-adf1-3a8ba55b4dbc`。保留 epoch `poc-20261004-v1`、period `poc-20261004`、资源及预算。没有在既有线上桶注入故障或执行恢复确认。
+
+首次线上检查当时**未通过**。标准 `wrangler dev -c wrangler.ops.jsonc` 建立了远端服务连接和 loopback 监听，本机无效动作返回带请求 ID 的 400，但 Python 只读检查超时。错误 epoch 的 RPC 同样超时，短时 tail 没有捕获目标运维事件；另试临时远端预览且未放宽桥接 guard，HTTP 仍超时，也复测了显式 loopback 代理排除规则。这些现象不能确定根因，也不能证明部署后的入口已经执行。临时进程已关闭，没有清零或删除账本；原始日志、secret 和尝试记录均留在 Git 外的 `/tmp`。PoC 原服务过期时间不变，过期不会删除桶或历史计数。
+
+## 线上只读检查已通过
+
+2026-10-04 新加坡时间 10:41，用户在 TUN 重试后报告线上只读检查成功。本轮也读取并核对实际导出 JSON：`ok=true`，Worker 请求 ID `652c4e89-ae9b-47d8-8dd3-cf3f0fdc9673`；账本 `ready`，Class A/B 为 3/2，已用/预留字节 10323/0，一个 ready 对象。本机桥接 HTTP 200、692 毫秒，其独立请求 ID 为 `8318a703-fb16-4ff1-b7c6-69ffa4063795`；两个 ID 属于不同跟踪范围。没有执行线上恢复确认或容量变更。这只验收该运维网络路径上的云端检查，不代表玩家访问。后续关闭代理的公开域名对比见[自定义域名直连验证](自定义域名直连验证.md)。
+
+## 下一步与边界
+
+线上只读检查已通过；若要测真实故障，使用另行隔离的状态，保留既有桶。旧写入静止与安全释放容量仍需独立设计/验收，不能由对象缺失推定。云端 CPU、大包/断连、账号预算、边缘缓存、大陆连通、最小权限回源凭据和 Unity/Mono 实际联网尚未完成。本批没有重跑 C# 回归、客户端构建或游戏验证。客户端下一批为固定 ZIP 有界落盘下载，接既有静态校验，再进入文件安装/恢复。

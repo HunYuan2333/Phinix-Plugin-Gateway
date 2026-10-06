@@ -1,0 +1,17 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "phinix-plugin-repository-poc",
+  "main": "src/index.mjs",
+  "compatibility_date": "2026-10-03",
+  "workers_dev": false,
+  "observability": { "enabled": true, "head_sampling_rate": 1, "logs": { "enabled": true, "head_sampling_rate": 1, "invocation_logs": false } },
+  "vars": {
+    "BUILD_ID": "dev-local-poc",
+    "R2_ENABLED": "false",
+    "SOURCES": "[{\"sourceId\":\"phinix.official\",\"repository\":\"HunYuan2333/Phinix-Plugin-Index\",\"repositoryId\":\"1402564805\",\"ownerId\":\"64630568\",\"publicationBranch\":\"main\"}]",
+    "CACHE_CONFIG": "{\"epoch\":\"local-poc-v1\",\"period\":\"local-test-only\",\"start\":1790899200000,\"end\":1793577600000,\"capacity\":67108864,\"classA\":1000,\"classB\":10000,\"maxFillBytes\":8388608,\"emptyConfirmed\":false}"
+  },
+  "durable_objects": { "bindings": [{ "name": "CACHE_COORDINATOR", "class_name": "CacheCoordinator" }] },
+  "migrations": [{ "tag": "v1", "new_sqlite_classes": ["CacheCoordinator"] }],
+  "r2_buckets": [{ "binding": "PACKAGES", "bucket_name": "phinix-plugin-cache-poc", "preview_bucket_name": "phinix-plugin-cache-poc" }]
+}

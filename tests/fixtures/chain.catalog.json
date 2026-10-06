@@ -1,0 +1,163 @@
+{
+  "schemaVersion": 1,
+  "sourceId": "test.local",
+  "snapshotId": "1111111111111111111111111111111111111111",
+  "packages": [
+    {
+      "id": "a",
+      "name": "a",
+      "author": "Test Author",
+      "license": "MIT",
+      "channel": "github-release",
+      "rimWorldPackageId": "test.a",
+      "integrationKind": "phinix-extension",
+      "state": "active",
+      "version": "1.0.0",
+      "compatibility": {
+        "targetFramework": "net472",
+        "rimWorldVersions": [
+          "1.6"
+        ],
+        "phinixRange": ">=0.9.7 <0.10.0",
+        "abstractionsRange": ">=1.1.0 <2.0.0"
+      },
+      "dependencies": [
+        {
+          "packageId": "b",
+          "versionRange": "1.0.0",
+          "optional": false
+        }
+      ],
+      "modules": [
+        {
+          "id": "a.main",
+          "dependsOn": []
+        }
+      ],
+      "assemblies": [
+        {
+          "name": "A",
+          "version": "1.0.0.0",
+          "fileName": "A.dll"
+        }
+      ],
+      "externalMods": [],
+      "artifact": {
+        "repository": "test-owner/a",
+        "repositoryId": "1",
+        "ownerId": "1",
+        "sourceCommit": "1111111111111111111111111111111111111111",
+        "tag": "v1.0.0",
+        "releaseId": "1",
+        "assetId": "1",
+        "assetName": "a.zip",
+        "payloadKind": "rimworld-mod-zip",
+        "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "manifestSha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "sizeBytes": 100
+      }
+    },
+    {
+      "id": "b",
+      "name": "b",
+      "author": "Test Author",
+      "license": "MIT",
+      "channel": "github-release",
+      "rimWorldPackageId": "test.b",
+      "integrationKind": "phinix-extension",
+      "state": "active",
+      "version": "1.0.0",
+      "compatibility": {
+        "targetFramework": "net472",
+        "rimWorldVersions": [
+          "1.6"
+        ],
+        "phinixRange": ">=0.9.7 <0.10.0",
+        "abstractionsRange": ">=1.1.0 <2.0.0"
+      },
+      "dependencies": [
+        {
+          "packageId": "c",
+          "versionRange": "1.0.0",
+          "optional": false
+        }
+      ],
+      "modules": [
+        {
+          "id": "b.main",
+          "dependsOn": []
+        }
+      ],
+      "assemblies": [
+        {
+          "name": "B",
+          "version": "1.0.0.0",
+          "fileName": "B.dll"
+        }
+      ],
+      "externalMods": [],
+      "artifact": {
+        "repository": "test-owner/b",
+        "repositoryId": "1",
+        "ownerId": "1",
+        "sourceCommit": "1111111111111111111111111111111111111111",
+        "tag": "v1.0.0",
+        "releaseId": "1",
+        "assetId": "1",
+        "assetName": "b.zip",
+        "payloadKind": "rimworld-mod-zip",
+        "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "manifestSha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "sizeBytes": 100
+      }
+    },
+    {
+      "id": "c",
+      "name": "c",
+      "author": "Test Author",
+      "license": "MIT",
+      "channel": "github-release",
+      "rimWorldPackageId": "test.c",
+      "integrationKind": "phinix-extension",
+      "state": "active",
+      "version": "1.0.0",
+      "compatibility": {
+        "targetFramework": "net472",
+        "rimWorldVersions": [
+          "1.6"
+        ],
+        "phinixRange": ">=0.9.7 <0.10.0",
+        "abstractionsRange": ">=1.1.0 <2.0.0"
+      },
+      "dependencies": [],
+      "modules": [
+        {
+          "id": "c.main",
+          "dependsOn": []
+        }
+      ],
+      "assemblies": [
+        {
+          "name": "C",
+          "version": "1.0.0.0",
+          "fileName": "C.dll"
+        }
+      ],
+      "externalMods": [],
+      "artifact": {
+        "repository": "test-owner/c",
+        "repositoryId": "1",
+        "ownerId": "1",
+        "sourceCommit": "1111111111111111111111111111111111111111",
+        "tag": "v1.0.0",
+        "releaseId": "1",
+        "assetId": "1",
+        "assetName": "c.zip",
+        "payloadKind": "rimworld-mod-zip",
+        "sha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "manifestSha256": "2222222222222222222222222222222222222222222222222222222222222222",
+        "sizeBytes": 100
+      }
+    }
+  ]
+}

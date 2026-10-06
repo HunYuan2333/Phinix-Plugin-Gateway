@@ -1,0 +1,24 @@
+{
+  "name": "phinix-plugin-repository-worker",
+  "version": "0.0.1",
+  "private": true,
+  "type": "module",
+  "engines": {
+    "node": ">=22.13.0"
+  },
+  "scripts": {
+    "test": "node --test --test-isolation=none tests/*.test.mjs",
+    "dev": "wrangler dev --local",
+    "check": "wrangler deploy --dry-run --outdir .wrangler/dry-run",
+    "test:native": "npm run check && npm run check:ops && npm run check:production && node tests/native-runtime.mjs",
+    "check:staging": "wrangler deploy -c wrangler.staging.jsonc --dry-run --outdir .wrangler/staging-dry-run",
+    "check:ops": "wrangler deploy -c wrangler.ops.jsonc --dry-run --outdir .wrangler/ops-dry-run",
+    "test:ops-cli": "python3 tests/ops-cli.test.py",
+    "test:network-check": "python3 tests/network-check.test.py",
+    "check:production": "wrangler deploy -c wrangler.production.jsonc --dry-run --outdir .wrangler/production-dry-run"
+  },
+  "devDependencies": {
+    "miniflare": "5.20261001.0-alpha",
+    "wrangler": "4.147.0"
+  }
+}

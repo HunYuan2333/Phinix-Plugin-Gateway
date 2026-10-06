@@ -1,0 +1,384 @@
+{
+  "schemaVersion": 1,
+  "sourceRepository": "HunYuan2333/Phinix-Rework",
+  "sourceRoot": "Extensions/PluginStore/RepositoryWorker",
+  "inputBeforeMigrationSha256": "54e7badfda94cce1b97c3abad35b6b80d426ba0b13af63490c1695c50fdb1969",
+  "sourceStatus": "Untracked reviewed working-tree snapshot; commit provenance starts in the new repository.",
+  "files": [
+    {
+      "path": ".github/workflows/check.yml",
+      "sizeBytes": 1047,
+      "sha256": "02be9a7fc8c75b89a886db1b582da39c36f34c402f34f35fe8808f2300d0afc5",
+      "migrationChange": "Added standalone validation/deployment documentation or preserved historical evidence."
+    },
+    {
+      "path": ".gitignore",
+      "sizeBytes": 88,
+      "sha256": "c7b1bf07ccf60e3fe045070bf73f9341cd6e5d9af74174ca1c1bc761367cd48c",
+      "importedSha256": "3c5419cde7dc964ff7028566ad7036077afcaf3ddc68764a5f113d7703f82f1e",
+      "migrationChange": "Exclude Python test bytecode alongside existing dependencies, credentials and build output."
+    },
+    {
+      "path": "AUDIT.md",
+      "sizeBytes": 9379,
+      "sha256": "c48ce159bb287ea4c02fe1e8043a0364103eb9da62997eeb70355af5492bfe8f",
+      "importedSha256": "1145e6e14461cd42d97fb3f1c4003896a996ecaaec252e304f2ca2fe1278726e",
+      "migrationChange": "Standalone operator entry/documentation; original evidence retained in docs/history."
+    },
+    {
+      "path": "AUDIT.zh-CN.md",
+      "sizeBytes": 8238,
+      "sha256": "e6d4077122a71681ecd18cf3024f849f3567d3311d25e3c87c7b07e3ef09b248",
+      "importedSha256": "493358c243f744ffdfb353e5889573dd65d70045208d7dc6f671bf57c918b2ee",
+      "migrationChange": "Standalone operator entry/documentation; original evidence retained in docs/history."
+    },
+    {
+      "path": "DEPLOYMENT.md",
+      "sizeBytes": 3111,
+      "sha256": "b3355ee304950ea987bb277c5f3f29d60481a70f00c1ab2ea389f0e26953e7f9",
+      "migrationChange": "Added standalone validation/deployment documentation or preserved historical evidence."
+    },
+    {
+      "path": "DEPLOYMENT.zh-CN.md",
+      "sizeBytes": 2469,
+      "sha256": "e083bc6920e52449d4b87693fca836e7d1ddbf3bffd18908d8f3930d71cfbd51",
+      "migrationChange": "Added standalone validation/deployment documentation or preserved historical evidence."
+    },
+    {
+      "path": "README.md",
+      "sizeBytes": 2129,
+      "sha256": "c4094531584532f797dfa2e4df5875374f7071db95e3452adf5dd0ee4b27dac6",
+      "importedSha256": "148fb5839e85ec8b853e5448df54d26de452122dafedab2baaad5de89837509f",
+      "migrationChange": "Standalone operator entry/documentation; original evidence retained in docs/history."
+    },
+    {
+      "path": "README.zh-CN.md",
+      "sizeBytes": 1748,
+      "sha256": "4d7b9068da0aaef6836334a151bebecefd054901152fd4269a0fd927c2bfeda3",
+      "importedSha256": "49d3d9163d4a2bde7f07459c27799547e444c145d8c92d9a5ec3bed2853fa9c8",
+      "migrationChange": "Standalone operator entry/documentation; original evidence retained in docs/history."
+    },
+    {
+      "path": "docs/history/CacheRecovery.md.txt",
+      "sizeBytes": 5856,
+      "sha256": "edc0a6a9f6fb6d1baa1b9654ffef53f58483e8b4e6c5b589737d2ddd12196703",
+      "migrationChange": "Added standalone validation/deployment documentation or preserved historical evidence."
+    },
+    {
+      "path": "docs/history/README.md.txt",
+      "sizeBytes": 13711,
+      "sha256": "148fb5839e85ec8b853e5448df54d26de452122dafedab2baaad5de89837509f",
+      "migrationChange": "Added standalone validation/deployment documentation or preserved historical evidence."
+    },
+    {
+      "path": "docs/history/README.zh-CN.md.txt",
+      "sizeBytes": 11763,
+      "sha256": "49d3d9163d4a2bde7f07459c27799547e444c145d8c92d9a5ec3bed2853fa9c8",
+      "migrationChange": "Added standalone validation/deployment documentation or preserved historical evidence."
+    },
+    {
+      "path": "docs/history/RepositoryLivePoc.md.txt",
+      "sizeBytes": 9928,
+      "sha256": "1d88961ac55b5da45274c34006bb8dd9801b9c6caa88b2be7636778b7b8791b1",
+      "migrationChange": "Added standalone validation/deployment documentation or preserved historical evidence."
+    },
+    {
+      "path": "docs/history/\u771f\u5b9e\u5206\u53d1\u94fe\u8defPoC.md.txt",
+      "sizeBytes": 10593,
+      "sha256": "f3006ac7fee56d2b0a10f91481d17b311aadd536ba2efe26226c6bb58974becb",
+      "migrationChange": "Added standalone validation/deployment documentation or preserved historical evidence."
+    },
+    {
+      "path": "docs/history/\u7f13\u5b58\u53d7\u63a7\u6838\u5bf9\u4e0e\u8bfb\u53d6\u6062\u590d.md.txt",
+      "sizeBytes": 5118,
+      "sha256": "e7120386f36b2c22b4034034f8d34de95bc28d1c8b2b3a603ed61d3756a1277d",
+      "migrationChange": "Added standalone validation/deployment documentation or preserved historical evidence."
+    },
+    {
+      "path": "ops/README.md",
+      "sizeBytes": 7608,
+      "sha256": "13b513ec8e3920e68ad182b21ebe78179a403062e18e49147a312114236c84c7",
+      "importedSha256": "5c2359c3b34756c47cb870dce2643de49a964d85453f4fea25cfa538a11d798d",
+      "migrationChange": "Standalone operator entry/documentation; original evidence retained in docs/history."
+    },
+    {
+      "path": "ops/README.zh-CN.md",
+      "sizeBytes": 6488,
+      "sha256": "805a4871e5e82149e95501fa2678c34a683e36ce147efaca5a625918d9122144",
+      "importedSha256": "199ddf94f8a049a27c41a9c6adfea053a7daf5aeb39570aab441efea6f910d66",
+      "migrationChange": "Standalone operator entry/documentation; original evidence retained in docs/history."
+    },
+    {
+      "path": "ops/cache-ops.py",
+      "sizeBytes": 4206,
+      "sha256": "129a458adc7d96ad3fab0af28648ff1c4334e4e0ea97a26f99697e2786345647",
+      "importedSha256": "129a458adc7d96ad3fab0af28648ff1c4334e4e0ea97a26f99697e2786345647"
+    },
+    {
+      "path": "ops/local-bridge.mjs",
+      "sizeBytes": 2241,
+      "sha256": "9ad5eab154fde2357f5d2df182af54cb2a878901e2742aa92ee6acbf5f3d2e6d",
+      "importedSha256": "9ad5eab154fde2357f5d2df182af54cb2a878901e2742aa92ee6acbf5f3d2e6d"
+    },
+    {
+      "path": "ops/network-check.py",
+      "sizeBytes": 3035,
+      "sha256": "9b73e7ecc51db738086d968736fe6b52f9ffab8e4fb68af350f7509f0a016c4b",
+      "importedSha256": "9b73e7ecc51db738086d968736fe6b52f9ffab8e4fb68af350f7509f0a016c4b"
+    },
+    {
+      "path": "package-lock.json",
+      "sizeBytes": 50239,
+      "sha256": "4923f5dd03ffe387f659425db407e952d1e36c2c5841fe121bfbe2fd564b457f",
+      "importedSha256": "4923f5dd03ffe387f659425db407e952d1e36c2c5841fe121bfbe2fd564b457f"
+    },
+    {
+      "path": "package.json",
+      "sizeBytes": 1001,
+      "sha256": "d916795edea0a737e8a923f8a4ca7126a740b4e1425695ecb65be7a17eb56c53",
+      "importedSha256": "d916795edea0a737e8a923f8a4ca7126a740b4e1425695ecb65be7a17eb56c53"
+    },
+    {
+      "path": "src/audit.mjs",
+      "sizeBytes": 3346,
+      "sha256": "b4d5b5bfc20147d941cf31b563b845f11bf012a916d9378aa6ab1606b9fdeb7c",
+      "importedSha256": "b4d5b5bfc20147d941cf31b563b845f11bf012a916d9378aa6ab1606b9fdeb7c"
+    },
+    {
+      "path": "src/cache-coordinator.mjs",
+      "sizeBytes": 6640,
+      "sha256": "0aafd5abff059354cddb35d505e66ac8c1d10540b27dd297ff2a40bce555af31",
+      "importedSha256": "0aafd5abff059354cddb35d505e66ac8c1d10540b27dd297ff2a40bce555af31"
+    },
+    {
+      "path": "src/cache-ledger.mjs",
+      "sizeBytes": 9996,
+      "sha256": "ac7a1358be346bc5355a3a826c971eb3b57826297725a75cb686904160283f65",
+      "importedSha256": "ac7a1358be346bc5355a3a826c971eb3b57826297725a75cb686904160283f65"
+    },
+    {
+      "path": "src/cache-operations.mjs",
+      "sizeBytes": 8044,
+      "sha256": "e015cfc1d24679909de1bd931fa4811841e421760ff5fe2c8d0592838e6903cc",
+      "importedSha256": "e015cfc1d24679909de1bd931fa4811841e421760ff5fe2c8d0592838e6903cc"
+    },
+    {
+      "path": "src/gateway.mjs",
+      "sizeBytes": 9965,
+      "sha256": "0ba1b7d1b6d707e6e9f6a92f582db30b96c92289af68e8c1c073ab83fdfe961d",
+      "importedSha256": "0ba1b7d1b6d707e6e9f6a92f582db30b96c92289af68e8c1c073ab83fdfe961d"
+    },
+    {
+      "path": "src/github.mjs",
+      "sizeBytes": 11305,
+      "sha256": "4169af0f082837341962cab742401f64c37fa9e9f8701689655d2be63668a58a",
+      "importedSha256": "4169af0f082837341962cab742401f64c37fa9e9f8701689655d2be63668a58a"
+    },
+    {
+      "path": "src/index.mjs",
+      "sizeBytes": 1045,
+      "sha256": "e08ded11960508364d3d191c9b7ad6dcb7074a8a9c07446d0f59da1e5ea03d41",
+      "importedSha256": "e08ded11960508364d3d191c9b7ad6dcb7074a8a9c07446d0f59da1e5ea03d41"
+    },
+    {
+      "path": "src/localized-display.mjs",
+      "sizeBytes": 2643,
+      "sha256": "6360da09b0296dc1dac9fe821045038b4055c1ed250741cdd73b4f127154d0d9",
+      "importedSha256": "6360da09b0296dc1dac9fe821045038b4055c1ed250741cdd73b4f127154d0d9"
+    },
+    {
+      "path": "src/origin-metadata-cache.mjs",
+      "sizeBytes": 2516,
+      "sha256": "b50463aa26b4238bf9ebea7f76978d75047ec79359328eb72b04bc39e4305fa2",
+      "importedSha256": "b50463aa26b4238bf9ebea7f76978d75047ec79359328eb72b04bc39e4305fa2"
+    },
+    {
+      "path": "src/protocol.mjs",
+      "sizeBytes": 10633,
+      "sha256": "c3e56f920fa1bed123d17dee3d3418ecaea20090575e5dbd5931028e1e3b0333",
+      "importedSha256": "c3e56f920fa1bed123d17dee3d3418ecaea20090575e5dbd5931028e1e3b0333"
+    },
+    {
+      "path": "src/read-only.mjs",
+      "sizeBytes": 1411,
+      "sha256": "e458765a8b9c2f2a49420b9b596d92aa3c2254681f0f62eb9529daef03df040f",
+      "importedSha256": "e458765a8b9c2f2a49420b9b596d92aa3c2254681f0f62eb9529daef03df040f"
+    },
+    {
+      "path": "src/stream.mjs",
+      "sizeBytes": 4890,
+      "sha256": "60e062f43c0797ae4c720ba1485d41ebfe461774c3fe8eed18b4326a2437cb99",
+      "importedSha256": "60e062f43c0797ae4c720ba1485d41ebfe461774c3fe8eed18b4326a2437cb99"
+    },
+    {
+      "path": "tests/cache.test.mjs",
+      "sizeBytes": 11308,
+      "sha256": "f24323395de35ec1d0da6d9d4c294c6df18f9679214f2e2551319b3b091fd77b",
+      "importedSha256": "f24323395de35ec1d0da6d9d4c294c6df18f9679214f2e2551319b3b091fd77b"
+    },
+    {
+      "path": "tests/fixture-provenance.test.mjs",
+      "sizeBytes": 907,
+      "sha256": "e50c6f0506eafecd206951f7e54b0d1d49dc879aa696e9839385a457f7018a30",
+      "importedSha256": "e50c6f0506eafecd206951f7e54b0d1d49dc879aa696e9839385a457f7018a30"
+    },
+    {
+      "path": "tests/fixtures/README.md",
+      "sizeBytes": 855,
+      "sha256": "07333b01b217c2ef1726e0f9f377869c83b55b8ebc283b992342c3c6a666108e",
+      "importedSha256": "07333b01b217c2ef1726e0f9f377869c83b55b8ebc283b992342c3c6a666108e"
+    },
+    {
+      "path": "tests/fixtures/README.zh-CN.md",
+      "sizeBytes": 696,
+      "sha256": "d030f4a81531055cfbf3cf056d5bc8eae9b2cfd40ac8470b71cb4d01f47270d7",
+      "importedSha256": "d030f4a81531055cfbf3cf056d5bc8eae9b2cfd40ac8470b71cb4d01f47270d7"
+    },
+    {
+      "path": "tests/fixtures/chain.catalog.json",
+      "sizeBytes": 4317,
+      "sha256": "81a1bda1d73d5b2fd5b2f74398d262455c36334f317f642f03050489832e8959",
+      "importedSha256": "81a1bda1d73d5b2fd5b2f74398d262455c36334f317f642f03050489832e8959"
+    },
+    {
+      "path": "tests/fixtures/localization-display.json",
+      "sizeBytes": 50251,
+      "sha256": "6eea74d6f51b49873879dc6b8f6d4db628cca612115a557e7e5f9bbe40276e15",
+      "importedSha256": "6eea74d6f51b49873879dc6b8f6d4db628cca612115a557e7e5f9bbe40276e15"
+    },
+    {
+      "path": "tests/fixtures/provenance.json",
+      "sizeBytes": 759,
+      "sha256": "bcbefcfdd513125e634151e56592b39d3549a16dd0c0f46e050a18be7dd23812",
+      "importedSha256": "bcbefcfdd513125e634151e56592b39d3549a16dd0c0f46e050a18be7dd23812"
+    },
+    {
+      "path": "tests/gateway.test.mjs",
+      "sizeBytes": 15374,
+      "sha256": "a17229f05203960667dde7db7c4d791393604e7d441091602b9a4cca420ea74b",
+      "importedSha256": "a17229f05203960667dde7db7c4d791393604e7d441091602b9a4cca420ea74b"
+    },
+    {
+      "path": "tests/helpers.mjs",
+      "sizeBytes": 8171,
+      "sha256": "b6fa5edae71b9a78262ed4658c17a467a388c12399713fd281b2463295341446",
+      "importedSha256": "b6fa5edae71b9a78262ed4658c17a467a388c12399713fd281b2463295341446"
+    },
+    {
+      "path": "tests/live-audit.py",
+      "sizeBytes": 3460,
+      "sha256": "428e51a442fb1f0b2c89c07aa4146a51ff7d4b02f4f08a18e51041490faf6516",
+      "importedSha256": "428e51a442fb1f0b2c89c07aa4146a51ff7d4b02f4f08a18e51041490faf6516"
+    },
+    {
+      "path": "tests/live-poc.py",
+      "sizeBytes": 5091,
+      "sha256": "601297409ec33b0edea85833561af0877248e39eaf277617e4efbe57bba27294",
+      "importedSha256": "601297409ec33b0edea85833561af0877248e39eaf277617e4efbe57bba27294"
+    },
+    {
+      "path": "tests/live-probe.test.py",
+      "sizeBytes": 5560,
+      "sha256": "d1bc85914ba228d2512177d5f4994866e9ae2911e21fc485f635fdc83c54a26e",
+      "importedSha256": "d1bc85914ba228d2512177d5f4994866e9ae2911e21fc485f635fdc83c54a26e"
+    },
+    {
+      "path": "tests/localized-display.test.mjs",
+      "sizeBytes": 1136,
+      "sha256": "86efca4c417b148b740d7426b15cd2907eea111a82309ad893e90e4f9eff1fb0",
+      "importedSha256": "86efca4c417b148b740d7426b15cd2907eea111a82309ad893e90e4f9eff1fb0"
+    },
+    {
+      "path": "tests/managed-protocol.test.mjs",
+      "sizeBytes": 3501,
+      "sha256": "829c3ead5e409d4de5c181b7beafdd4c33ab7827e32ad5f2e2de08c8ddd6076b",
+      "importedSha256": "829c3ead5e409d4de5c181b7beafdd4c33ab7827e32ad5f2e2de08c8ddd6076b"
+    },
+    {
+      "path": "tests/native-recovery-worker.mjs",
+      "sizeBytes": 1674,
+      "sha256": "66801257c50051bad0573edc73f3976d33675892a5470c4270c26c2667d90fa5",
+      "importedSha256": "66801257c50051bad0573edc73f3976d33675892a5470c4270c26c2667d90fa5"
+    },
+    {
+      "path": "tests/native-runtime.mjs",
+      "sizeBytes": 7726,
+      "sha256": "595e5632aefb13d6d01aabb35ec4760ed3d490a68ce7aac8717d7765eadc0d7a",
+      "importedSha256": "595e5632aefb13d6d01aabb35ec4760ed3d490a68ce7aac8717d7765eadc0d7a"
+    },
+    {
+      "path": "tests/network-check.test.py",
+      "sizeBytes": 3636,
+      "sha256": "45698b266f024f1a90115eee6ca04e16814104d7e7119cc40064eea188771d1c",
+      "importedSha256": "45698b266f024f1a90115eee6ca04e16814104d7e7119cc40064eea188771d1c"
+    },
+    {
+      "path": "tests/ops-cli.test.py",
+      "sizeBytes": 5170,
+      "sha256": "bf843ce1367cdf6780a0f0697be0f386913c50877e3a4171a0f77cb41c296da4",
+      "importedSha256": "bf843ce1367cdf6780a0f0697be0f386913c50877e3a4171a0f77cb41c296da4"
+    },
+    {
+      "path": "tests/origin-metadata-cache.test.mjs",
+      "sizeBytes": 5673,
+      "sha256": "19eb70d7965459a8b07047e4819e3def64c8fbba1a63ef08a35e1dbf231bf050",
+      "importedSha256": "19eb70d7965459a8b07047e4819e3def64c8fbba1a63ef08a35e1dbf231bf050"
+    },
+    {
+      "path": "tests/production-config.test.mjs",
+      "sizeBytes": 1781,
+      "sha256": "433fd2efaaca77a0700dccd1dc79d684e03094e46bc827ed7cf1ec42cae889a2",
+      "importedSha256": "433fd2efaaca77a0700dccd1dc79d684e03094e46bc827ed7cf1ec42cae889a2"
+    },
+    {
+      "path": "tests/recovery.test.mjs",
+      "sizeBytes": 14671,
+      "sha256": "5d1d0702dde178825975dede3bb6dd9d8f062daa3928a30195767d20311bc8a5",
+      "importedSha256": "5d1d0702dde178825975dede3bb6dd9d8f062daa3928a30195767d20311bc8a5"
+    },
+    {
+      "path": "tests/staging.test.mjs",
+      "sizeBytes": 5935,
+      "sha256": "7e05c9e794cc484b85e81cd8ea54df9d096514d6d5c8d587ae97d69f9f3d52ba",
+      "importedSha256": "7e05c9e794cc484b85e81cd8ea54df9d096514d6d5c8d587ae97d69f9f3d52ba"
+    },
+    {
+      "path": "tests/stream.test.mjs",
+      "sizeBytes": 4871,
+      "sha256": "fdd21d3f151976996d451daea68dad6e56c8aa1c546836497a40b332fde2d40f",
+      "importedSha256": "fdd21d3f151976996d451daea68dad6e56c8aa1c546836497a40b332fde2d40f"
+    },
+    {
+      "path": "wrangler.jsonc",
+      "sizeBytes": 1162,
+      "sha256": "0d960e866db3015a8b1497e3554934495e49cf85b5d06db29e2becc9e6944758",
+      "importedSha256": "0d960e866db3015a8b1497e3554934495e49cf85b5d06db29e2becc9e6944758"
+    },
+    {
+      "path": "wrangler.ops.jsonc",
+      "sizeBytes": 503,
+      "sha256": "d63848d5375ed211cbc09306cfc7499c2785ea849166bbfd8966f3211318e22e",
+      "importedSha256": "d63848d5375ed211cbc09306cfc7499c2785ea849166bbfd8966f3211318e22e"
+    },
+    {
+      "path": "wrangler.poc.jsonc",
+      "sizeBytes": 1553,
+      "sha256": "392d4f38e4deb36c7ca109a86a180e592b8780b7bc2c4870bf52d0a687dc6d66",
+      "importedSha256": "392d4f38e4deb36c7ca109a86a180e592b8780b7bc2c4870bf52d0a687dc6d66"
+    },
+    {
+      "path": "wrangler.production.jsonc",
+      "sizeBytes": 1288,
+      "sha256": "03866cc7500877b6270c13dfbbbef1e9e82d6e27258c724c0008c699c6d1afb1",
+      "importedSha256": "03866cc7500877b6270c13dfbbbef1e9e82d6e27258c724c0008c699c6d1afb1"
+    },
+    {
+      "path": "wrangler.staging.jsonc",
+      "sizeBytes": 1288,
+      "sha256": "03866cc7500877b6270c13dfbbbef1e9e82d6e27258c724c0008c699c6d1afb1",
+      "importedSha256": "03866cc7500877b6270c13dfbbbef1e9e82d6e27258c724c0008c699c6d1afb1"
+    }
+  ],
+  "productionRuntimeAndConfigByteIdentical": true,
+  "licenseStatus": "No root license file present in source; no new license grant added."
+}

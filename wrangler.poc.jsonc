@@ -1,0 +1,52 @@
+{
+  "$schema": "node_modules/wrangler/config-schema.json",
+  "name": "phinix-plugin-repository-poc",
+  "main": "src/index.mjs",
+  "compatibility_date": "2026-10-03",
+  "workers_dev": false,
+  "routes": [],
+  "observability": {
+    "enabled": true,
+    "head_sampling_rate": 1,
+    "logs": {
+      "enabled": true,
+      "head_sampling_rate": 1,
+      "invocation_logs": false
+    }
+  },
+  "vars": {
+    "BUILD_ID": "poc-20261004-d1e140659fae",
+    "R2_ENABLED": "true",
+    "SOURCES": "[{\"sourceId\":\"phinix.poc\",\"repository\":\"HunYuan2333/Phinix-PluginStore-PoC\",\"repositoryId\":\"1403380030\",\"ownerId\":\"64630568\",\"publicationBranch\":\"main\"}]",
+    "CACHE_CONFIG": "{\"epoch\":\"poc-20261004-v1\",\"period\":\"poc-20261004\",\"start\":1791043789973,\"end\":1791216649973,\"capacity\":65536,\"classA\":100,\"classB\":100,\"maxFillBytes\":65536,\"emptyConfirmed\":true}",
+    "POC_MODE": "true",
+    "POC_EXPIRES_AT": "1791216649973",
+    "ORIGIN_METADATA_CACHE_SECONDS": "30",
+    "CACHE_OPERATIONS_ENABLED": "true"
+  },
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CACHE_COORDINATOR",
+        "class_name": "CacheCoordinator"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "v1",
+      "new_sqlite_classes": [
+        "CacheCoordinator"
+      ]
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "PACKAGES",
+      "bucket_name": "phinix-plugin-poc-20261004",
+      "preview_bucket_name": "phinix-plugin-poc-20261004"
+    }
+  ],
+  "account_id": "0a5846aaeab66b9368b987da73865226",
+  "preview_urls": false
+}

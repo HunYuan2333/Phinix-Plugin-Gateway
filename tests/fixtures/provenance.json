@@ -1,0 +1,21 @@
+{
+  "schemaVersion": 1,
+  "canonicalRepository": "HunYuan2333/Phinix-Rework",
+  "canonicalOwner": "client protocol tests",
+  "snapshotDate": "2026-10-06",
+  "sourceStatus": "Reviewed working-tree snapshot; not claimed as committed source.",
+  "fixtures": [
+    {
+      "path": "chain.catalog.json",
+      "sha256": "81a1bda1d73d5b2fd5b2f74398d262455c36334f317f642f03050489832e8959",
+      "sizeBytes": 4317,
+      "sourcePath": "Tests/PluginStoreRuntimeTests/Fixtures/chain.catalog.json"
+    },
+    {
+      "path": "localization-display.json",
+      "sha256": "6eea74d6f51b49873879dc6b8f6d4db628cca612115a557e7e5f9bbe40276e15",
+      "sizeBytes": 50251,
+      "sourcePath": "Tests/PluginStoreRuntimeTests/Fixtures/localization-display/cases.json"
+    }
+  ]
+}
