@@ -7,9 +7,9 @@
   "files": [
     {
       "path": ".github/workflows/check.yml",
-      "sizeBytes": 1047,
-      "sha256": "02be9a7fc8c75b89a886db1b582da39c36f34c402f34f35fe8808f2300d0afc5",
-      "migrationChange": "Added standalone validation/deployment documentation or preserved historical evidence."
+      "sizeBytes": 1040,
+      "sha256": "867e9180b5edede2751268a251575a1de0a04212231a572be244acdd03a015be",
+      "migrationChange": "Standalone read-only CI; job env uses a fixed temporary log path because runner context is unavailable there."
     },
     {
       "path": ".gitignore",
