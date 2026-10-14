@@ -28,7 +28,7 @@
     }
   },
   "vars": {
-    "BUILD_ID": "production-20261006-read-only",
+    "BUILD_ID": "production-20261015-managed-dual",
     "POC_MODE": "false",
     "R2_ENABLED": "false",
     "ORIGIN_METADATA_CACHE_SECONDS": "30",

@@ -4,12 +4,15 @@ import { catalog, selectedPackage, stable } from '../src/protocol.mjs';
 import { createReadOnlyGateway } from '../src/read-only.mjs';
 import { fixture, encode, sha, source, mockGithub, testEnv, context, traceCapture, digestFactory } from './helpers.mjs';
 
-async function managedFixture() {
+async function managedFixture(dual = false) {
   const data = await fixture();
   const old = JSON.parse(new TextDecoder().decode(data.catalog)).packages[0];
   const record = { id: old.id, localization: { translations: { "en-US": { name: old.name, summary: "Test" } } }, state: 'active', channel: 'github-release', management: 'phinix-dll',
     manifest: { schemaVersion: 1, management: 'phinix-dll', packageId: old.id, version: old.version }, artifact: { ...data.artifact, payloadKind: 'managed-dll-zip' } };
   data.artifact = record.artifact;
+  if (dual) record.manifest = { schemaVersion: 2, variants: ['1.6', '1.7'].map(game => ({
+    ...record.manifest, targetFramework: game === '1.6' ? 'net472' : 'net10.0', compatibility: { rimWorldVersions: [game] }
+  })) };
   data.catalog = encode({ schemaVersion: 3, sourceId: source.sourceId, snapshotId: data.snapshot, packages: [record] });
   data.publishedObject = { ...data.publishedObject, catalogSchemaVersion: 3, catalogSha256: sha(data.catalog), catalogSizeBytes: data.catalog.length };
   data.published = encode(data.publishedObject);
@@ -28,6 +31,26 @@ test('managed catalog routes manifest version and rejects both format reinterpre
   record.artifact.payloadKind = 'managed-dll-zip'; record.management = 'rimworld-mod'; assert.throws(() => selectedPackage(index, path), /ManagedIdentityMismatch/);
   record.management = 'phinix-dll'; record.manifest.packageId = 'forged'; assert.throws(() => selectedPackage(index, path), /ManagedIdentityMismatch/);
   await assert.rejects(catalog(data.catalog, { ...data.publishedObject, catalogSchemaVersion: 1 }), /CatalogIdentityMismatch/);
+});
+test('dual-runtime envelopes route by shared version and reject conflicting profiles or identities', async () => {
+  const data = await managedFixture(true), index = await catalog(data.catalog, data.publishedObject);
+  const path = { package: 'a', version: '1.0.0', hash: data.artifact.sha256 };
+  assert.equal(selectedPackage(index, path).sha256, data.artifact.sha256);
+  assert.throws(() => selectedPackage(index, { ...path, version: '1.0.1' }), /PackageNotFound/);
+  for (const change of [v => { v.version = '1.0.1'; }, v => { v.packageId = 'forged'; },
+    v => { v.targetFramework = 'net472'; }, v => { v.compatibility.rimWorldVersions = ['1.6']; }, v => { v.schemaVersion = 2; }]) {
+    const bad = structuredClone(index); change(bad.packages[0].manifest.variants[1]);
+    assert.throws(() => selectedPackage(bad, path), /ManagedIdentityMismatch/);
+  }
+});
+test('dual-runtime package streams unchanged approved bytes through the normal read-only gateway', async () => {
+  const data = await managedFixture(true), mock = mockGithub(data), tasks = context(), capture = traceCapture();
+  const gateway = createReadOnlyGateway({ fetcher: mock.fetcher, sink: capture.sink, digestFactory });
+  const env = testEnv({ REPOSITORY_ENABLED: 'true', POC_MODE: 'false', GITHUB_TOKEN: 'SECRET', REQUEST_LIMITER: { limit: async () => ({ success: true }) } });
+  const response = await gateway.fetch(new Request(`https://store.test/v1/sources/test.local/snapshots/${data.snapshot}/packages/a/1.0.0/${data.artifact.sha256}/package`), env, tasks);
+  assert.equal(response.status, 200);
+  assert.deepEqual(new Uint8Array(await response.arrayBuffer()), data.payload); await tasks.flush();
+  assert(capture.records.some(r => r.event === 'stream.verified'));
 });
 test('managed package uses existing verified anonymous staging stream without changing v1', async () => {
   const data = await managedFixture(), mock = mockGithub(data), capture = traceCapture(), tasks = context();

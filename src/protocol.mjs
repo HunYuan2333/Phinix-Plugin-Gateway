@@ -106,14 +106,30 @@ export function sources(env) {
   }
   return result;
 }
+function managedVersion(manifest, packageId) {
+  if (manifest?.schemaVersion !== 2) return manifest?.version;
+  object(manifest, ['schemaVersion', 'variants']);
+  requireThat(Array.isArray(manifest.variants) && manifest.variants.length > 0 && manifest.variants.length <= 2, 'ManagedIdentityMismatch');
+  const first = manifest.variants[0], games = new Set();
+  for (const variant of manifest.variants) {
+    const profiles = variant?.compatibility?.rimWorldVersions;
+    requireThat(variant?.schemaVersion === 1 && variant.management === 'phinix-dll' && variant.packageId === packageId &&
+      variant.version === first?.version && Array.isArray(profiles) && profiles.length === 1 &&
+      ['1.6', '1.7'].includes(profiles[0]) && !games.has(profiles[0]) &&
+      variant.targetFramework === (profiles[0] === '1.6' ? 'net472' : 'net10.0'), 'ManagedIdentityMismatch');
+    games.add(profiles[0]);
+  }
+  return version(first.version);
+}
 export function selectedPackage(index, path) {
   const managed = index.schemaVersion === 3;
   requireThat(managed || index.schemaVersion === 1, "UnsupportedSchema");
-  const matches = index.packages.filter(p => p && p.id === path.package && (managed ? p.manifest?.version : p.version) === path.version);
+  const matches = index.packages.filter(p => p && p.id === path.package && (managed ? managedVersion(p.manifest, p.id) : p.version) === path.version);
   requireThat(matches.length === 1, "PackageNotFound", 404); const record = matches[0];
   requireThat(record.state === 'active', "PackageUnavailable", 410);
   requireThat(record.channel === 'github-release' && record.artifact?.payloadKind === (managed ? 'managed-dll-zip' : 'rimworld-mod-zip'), "PayloadNotSupported", 422);
-  if (managed) requireThat(record.management === 'phinix-dll' && record.manifest?.schemaVersion === 1 && record.manifest.management === 'phinix-dll' && record.manifest.packageId === record.id, 'ManagedIdentityMismatch');
+  if (managed) requireThat(record.management === 'phinix-dll' && (record.manifest?.schemaVersion === 2 ||
+    record.manifest?.schemaVersion === 1 && record.manifest.management === 'phinix-dll' && record.manifest.packageId === record.id), 'ManagedIdentityMismatch');
   const a = object(record.artifact, ["repository", "repositoryId", "ownerId", "sourceCommit", "tag", "releaseId", "assetId", "assetName", "payloadKind", "sha256", "manifestSha256", "sizeBytes"]);
   repository(a.repository); for (const key of ['repositoryId', 'ownerId', 'releaseId', 'assetId']) positiveId(a[key]);
   hex(a.sourceCommit, 40); hex(a.sha256); hex(a.manifestSha256); size(a.sizeBytes, MAX_PACKAGE);
