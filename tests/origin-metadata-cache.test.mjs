@@ -35,7 +35,7 @@ test('warm R2 plus bounded approved metadata makes no GitHub calls; fresh bypass
 test('short metadata expiry rejects unavailable approval instead of delivering warm R2',async()=>{
   let now=Date.now(),fail=false;const data=await fixture(),capture=traceCapture(),mock=mockGithub(data),worker=createGateway({now:()=>now,sink:capture.sink,fetcher:async(...args)=>fail?new Response(null,{status:403}):mock.fetcher(...args)}),env=testEnv({ORIGIN_METADATA_CACHE_SECONDS:'1'});
   assert.equal((await worker.fetch(new Request(root+'/stable'),env,context())).status,200);fail=true;now+=1001;
-  const result=await worker.fetch(new Request(root+'/stable'),env,context());assert.equal(result.status,503);assert.equal((await result.json()).code,'OriginRateLimited');
+  const result=await worker.fetch(new Request(root+'/stable'),env,context());assert.equal(result.status,503);assert.equal((await result.json()).code,'OriginAccessDenied');
 });
 test('credential scopes isolate cache and freshness age remains visible',async()=>{
   let now=Date.now();const data=await fixture(),capture=traceCapture(),mock=mockGithub(data),worker=createGateway({now:()=>now,fetcher:mock.fetcher,sink:capture.sink}),env=testEnv({ORIGIN_METADATA_CACHE_SECONDS:'30'});

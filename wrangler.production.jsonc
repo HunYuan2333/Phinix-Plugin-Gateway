@@ -28,10 +28,11 @@
     }
   },
   "vars": {
-    "BUILD_ID": "production-20261015-theme-feed",
+    "BUILD_ID": "production-20261015-package-owner-auth",
     "POC_MODE": "false",
     "R2_ENABLED": "false",
     "ORIGIN_METADATA_CACHE_SECONDS": "30",
+    "PACKAGE_TOKEN_OWNER_ID": "342817783",
     "SOURCES": "[{\"sourceId\":\"phinix.official\",\"repository\":\"HunYuan2333/Phinix-Plugin-Index\",\"repositoryId\":\"1402564805\",\"ownerId\":\"64630568\",\"publicationBranch\":\"main\"},{\"sourceId\":\"phinix.themes\",\"repository\":\"HunYuan2333/Phinix-Plugin-Index\",\"repositoryId\":\"1402564805\",\"ownerId\":\"64630568\",\"publicationBranch\":\"themes\"}]",
     "REPOSITORY_ENABLED": "true"
   },

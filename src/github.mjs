@@ -27,6 +27,10 @@ export class GitHubOrigin {
     this.repos = new Map(); this.releases = new Map();
     this.metadataCache = metadataCache; this.metadataTtlMs = metadataTtlMs; this.fresh = fresh; this.metadataAgeSeconds = 0;
   }
+  useToken(token) {
+    // Identity caches belong to the credential scope; request/time budgets do not reset.
+    this.token = token; this.repos.clear(); this.releases.clear();
+  }
   async call(url, accept, binary = false) {
     if (!binary && this.metadataCache && this.metadataTtlMs > 0 && !this.fresh) {
       requireThat(this.deadline - this.now() > 0, 'OriginTotalTimeout', 503);
@@ -56,7 +60,7 @@ export class GitHubOrigin {
         ...(trustedApi ? rateFields(response.headers) : {}),
         ...(requestId && /^[A-Za-z0-9:._-]{1,128}$/.test(requestId) ? { githubRequestId: requestId } : {}) });
       if (!binary) {
-        if (response.status !== 200) throw new GatewayError(response.status === 404 ? 'OriginNotFound' : response.status === 429 || response.status === 403 ? 'OriginRateLimited' : 'OriginUnavailable', response.status === 404 ? 502 : 503, response.status !== 404);
+        if (response.status !== 200) throw await this.responseError(response);
         const bytes = await this.consume(response, accept.includes('raw') ? MAX_METADATA : MAX_CATALOG);
         return bytes;
       }
@@ -68,6 +72,23 @@ export class GitHubOrigin {
   async consume(response, limit) {
     const remaining = this.deadline - this.now(); requireThat(remaining > 0, 'OriginTotalTimeout', 503);
     return boundedBody(response, limit, 'OriginDocumentLimit', { idleMs: this.timeoutMs, totalMs: remaining });
+  }
+  async responseError(response) {
+    if (response.status === 404) return new GatewayError('OriginNotFound');
+    if (response.status === 401) return new GatewayError('OriginAccessDenied', 503);
+    if (response.status === 429) return new GatewayError('OriginRateLimited', 503, true);
+    if (response.status === 403) {
+      const fields = rateFields(response.headers);
+      if (fields.rateLimitRemaining === 0 || fields.retryAfterSeconds > 0)
+        return new GatewayError('OriginRateLimited', 503, true);
+      // Inspect only a bounded error document; never return/log upstream messages.
+      let message = '';
+      try { message = strictJson(await this.consume(response, 16384), 16384).message; } catch { /* Unknown forbidden response stays forbidden. */ }
+      if (typeof message === 'string' && /(?:secondary rate limit|API rate limit exceeded|abuse detection)/i.test(message))
+        return new GatewayError('OriginRateLimited', 503, true);
+      return new GatewayError('OriginAccessDenied', 503);
+    }
+    return new GatewayError('OriginUnavailable', 503, true);
   }
   async json(path) { return strictJson(await this.call('https://api.github.com' + path, 'application/vnd.github+json'), MAX_CATALOG); }
   async repo(repository, expectedRepoId, expectedOwnerId) {
@@ -125,7 +146,7 @@ export class GitHubOrigin {
         requireThat(!encoding && !response.headers.has('Content-Range') && (contentType === 'application/octet-stream' || contentType === 'application/zip'), 'OriginResponseType');
         requireThat(length === String(identity.sizeBytes) && response.body, 'OriginLengthMismatch'); return response;
       }
-      if (![301, 302, 303, 307, 308].includes(response.status)) throw new GatewayError('OriginAssetUnavailable', 503, true);
+      if (![301, 302, 303, 307, 308].includes(response.status)) throw await this.responseError(response);
       const location = response.headers.get('Location'); requireThat(location && hop < 5, 'OriginRedirectLimit');
       // Never log the Location/signed query, and never forward Authorization off api.github.com.
       const next = new URL(location, url);
