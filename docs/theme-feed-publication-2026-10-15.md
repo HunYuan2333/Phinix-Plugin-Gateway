@@ -62,3 +62,17 @@ third-party owner with no author network access, missing/duplicate/wrong-size/
 wrong-digest/corrupt mirror assets, withdrawn records, cache fill/hit and byte
 revalidation on publication retry. Actual publication/deployment and live results
 are recorded below after verification.
+
+### Verified deployed mirror delivery
+
+- Index commit/snapshot: `20a6e446ac6f9c9ee1729668f555aac387bc026b`; publication run 38702787215 succeeded.
+- Catalog SHA256: `b62360e5d17d42f94a4e1c7f94940fa25fbbfb22fbb3a3cd37895b272e4f4b75`.
+- Snapshot Release ID: 413554870, containing catalog.json and both `theme-<sha256>.zip` copies; ZIP digests match original author assets above.
+- Gateway source: `c2207a3a1bd55404b683c7dda2f08d6d16cf9e98`; CI 38702881411 succeeded.
+- Worker version: `ccf0be0b-450d-4270-868b-8af699ac195c`, build `production-20261015-public-theme-mirrors`, both existing domains.
+- Actual client CF transport, strict catalog/ZIP/manifest/XML validators, isolated installation and receipt reload passed for both themes against this snapshot.
+- Actual original-plugin CF catalog/cache/304 regression passed; original snapshot/digest unchanged, 19 records.
+- A new anonymous GitHub-direct probe hit remaining=0 (reset 1792051915), so this new-snapshot direct probe is rate-limited, not passed. The same original ZIP bytes passed the earlier direct probe.
+- Neither transport-only check proves game UI acceptance. Subsequent player feedback identified a client theme-selection restore defect; local Host 0.10.4 repairs it and allows metadata caching on ordinary theme refresh while keeping the final installation recheck fresh. That Host patch requires separate client/game acceptance.
+
+No organization-specific secret is needed. Production ZIP/R2 caching remains disabled; verified public Release mirrors provide persistent distribution hosting independently of player anonymous GitHub quota.
