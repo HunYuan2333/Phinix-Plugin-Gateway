@@ -17,6 +17,6 @@ test('production cannot accidentally enable PoC storage, admin exports or arbitr
   assert.equal(production.vars.POC_MODE,'false');assert.equal(production.vars.R2_ENABLED,'false');
   for(const key of ['durable_objects','r2_buckets','services'])assert.equal(production[key],undefined);
   for(const key of ['GITHUB_TOKEN','POC_ACCESS_TOKEN','CACHE_CONFIG','CACHE_OPERATIONS_ENABLED'])assert.equal(production.vars[key],undefined);
-  assert.deepEqual(JSON.parse(production.vars.SOURCES),[{sourceId:'phinix.official',repository:'HunYuan2333/Phinix-Plugin-Index',repositoryId:'1402564805',ownerId:'64630568',publicationBranch:'main'}]);
+  assert.deepEqual(JSON.parse(production.vars.SOURCES),[{sourceId:'phinix.official',repository:'HunYuan2333/Phinix-Plugin-Index',repositoryId:'1402564805',ownerId:'64630568',publicationBranch:'main'}, {sourceId:'phinix.themes',repository:'HunYuan2333/Phinix-Plugin-Index',repositoryId:'1402564805',ownerId:'64630568',publicationBranch:'themes'}]);
   assert.equal(production.ratelimits[0].simple.limit,30);assert.equal(production.ratelimits[0].simple.period,60);
 });

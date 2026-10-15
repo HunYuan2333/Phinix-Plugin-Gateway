@@ -28,11 +28,11 @@
     }
   },
   "vars": {
-    "BUILD_ID": "production-20261015-managed-dual",
+    "BUILD_ID": "production-20261015-theme-feed",
     "POC_MODE": "false",
     "R2_ENABLED": "false",
     "ORIGIN_METADATA_CACHE_SECONDS": "30",
-    "SOURCES": "[{\"sourceId\":\"phinix.official\",\"repository\":\"HunYuan2333/Phinix-Plugin-Index\",\"repositoryId\":\"1402564805\",\"ownerId\":\"64630568\",\"publicationBranch\":\"main\"}]",
+    "SOURCES": "[{\"sourceId\":\"phinix.official\",\"repository\":\"HunYuan2333/Phinix-Plugin-Index\",\"repositoryId\":\"1402564805\",\"ownerId\":\"64630568\",\"publicationBranch\":\"main\"},{\"sourceId\":\"phinix.themes\",\"repository\":\"HunYuan2333/Phinix-Plugin-Index\",\"repositoryId\":\"1402564805\",\"ownerId\":\"64630568\",\"publicationBranch\":\"themes\"}]",
     "REPOSITORY_ENABLED": "true"
   },
   "ratelimits": [

@@ -1,0 +1,44 @@
+{
+  "schemaVersion": 1,
+  "package": {
+    "id": "phinix.theme.daylight",
+    "state": "active",
+    "management": "phinix-theme",
+    "channel": "github-release",
+    "manifest": {
+      "schemaVersion": 1,
+      "management": "phinix-theme",
+      "packageId": "phinix.theme.daylight",
+      "name": "Daylight \u00b7 \u6674\u663c",
+      "author": "Phinix Rework",
+      "version": "0.1.1",
+      "phinixRange": ">=0.10.1 <1.0.0",
+      "themes": [
+        {
+          "id": "main",
+          "name": "Daylight \u00b7 \u6674\u663c",
+          "path": "Themes/main.xml",
+          "schemaVersion": 2,
+          "length": 7820,
+          "sha256": "4e1ceada17f9d928db1194fa389ecdfcca76b5b80b26e036575eb795dd349b37"
+        }
+      ]
+    },
+    "summary": "Data theme fixture only",
+    "license": "MIT",
+    "artifact": {
+      "repository": "test/theme",
+      "repositoryId": "123",
+      "ownerId": "456",
+      "sourceCommit": "aaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaaa",
+      "tag": "v0.1.1",
+      "releaseId": "1234",
+      "assetId": "5678",
+      "assetName": "theme-0.1.1.zip",
+      "payloadKind": "theme-zip",
+      "sha256": "fc9bd010699cb4635a34b1416eaa19be91ecdfb72df5cf6c42ca7773d54a59ac",
+      "manifestSha256": "fd45d64db0f8305a1e345b5480cbf89e6c5d87652526e814eebe29c76ea52bce",
+      "sizeBytes": 1809
+    }
+  }
+}

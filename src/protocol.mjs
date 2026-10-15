@@ -52,7 +52,7 @@ export async function verifyBytes(bytes, length, hash, role) {
 }
 const commonFields = ["schemaVersion", "sourceId", "snapshotId", "catalogSchemaVersion", "catalogSha256", "catalogSizeBytes"];
 export function common(value, source) {
-  requireThat(value.schemaVersion === 1 && [1, 3].includes(value.catalogSchemaVersion), "UnsupportedSchema");
+  requireThat(value.schemaVersion === 1 && [1, 3, 4].includes(value.catalogSchemaVersion), "UnsupportedSchema");
   requireThat(value.sourceId === source, "SourceMismatch"); identifier(value.sourceId); hex(value.snapshotId, 40); hex(value.catalogSha256); size(value.catalogSizeBytes, MAX_CATALOG);
 }
 export function stable(bytes, source) {
@@ -78,7 +78,37 @@ export async function catalog(bytes, descriptor) {
       validateDisplayLocalization(record.localization);
     } else requireThat(record.channel === "steam-workshop" && !Object.hasOwn(record,"localization"), "UnsupportedRoute");
   }
+  if(value.schemaVersion === 4) {
+    requireThat(value.packages.length <= 256, 'CollectionLimit');
+    const seen = new Set();
+    for(const record of value.packages) {
+      object(record, ['id','state','management','channel','manifest','artifact','summary','license']);
+      identifier(record.id); requireThat(record.management === 'phinix-theme' && record.channel === 'github-release', 'UnsupportedRoute');
+      requireThat(['active','withdrawn','unmaintained'].includes(record.state), 'InvalidState');
+      requireThat(typeof record.summary === 'string' && record.summary.length <= 1024 && typeof record.license === 'string' && record.license.length > 0 && record.license.length <= 128, 'InvalidThemeDisplay');
+      validateThemeManifest(record.manifest, record.id);
+      const key = record.id + '@' + record.manifest.version;
+      requireThat(!seen.has(key), 'DuplicatePackage'); seen.add(key);
+    }
+  }
   return value;
+}
+export function validateThemeManifest(manifest, id) {
+  object(manifest, ['schemaVersion','management','packageId','name','author','version','phinixRange','themes']);
+  requireThat(manifest.schemaVersion === 1 && manifest.management === 'phinix-theme' && manifest.packageId === id, 'ThemeIdentityMismatch');
+  identifier(id); version(manifest.version);
+  for(const key of ['name','author']) requireThat(typeof manifest[key] === 'string' && manifest[key].length > 0 && manifest[key].length <= 160 && !/[\x00-\x1f\x7f]/.test(manifest[key]), 'InvalidThemeMetadata');
+  requireThat(typeof manifest.phinixRange === 'string' && /^(?:\d+\.\d+\.\d+|>=\d+\.\d+\.\d+ <\d+\.\d+\.\d+)$/.test(manifest.phinixRange), 'InvalidThemeRange');
+  requireThat(Array.isArray(manifest.themes) && manifest.themes.length > 0 && manifest.themes.length <= 16, 'ThemeEntryLimit');
+  const ids = new Set(), paths = new Set(); let total = 0;
+  for(const theme of manifest.themes) {
+    object(theme, ['id','name','path','schemaVersion','length','sha256']); identifier(theme.id);
+    requireThat(theme.id.length <= 64 && !ids.has(theme.id), 'ThemeIdentityMismatch'); ids.add(theme.id);
+    requireThat(typeof theme.name === 'string' && theme.name.length > 0 && theme.name.length <= 160, 'InvalidThemeMetadata');
+    requireThat(typeof theme.path === 'string' && /^Themes\/[A-Za-z0-9][A-Za-z0-9._-]*\.xml$/.test(theme.path) && !theme.path.includes('..') && !paths.has(theme.path.toLowerCase()) && !/^Themes\/(CON|PRN|AUX|NUL|COM[0-9]|LPT[0-9])(?:\.|$)/i.test(theme.path), 'InvalidThemePath'); paths.add(theme.path.toLowerCase());
+    requireThat([2,3].includes(theme.schemaVersion), 'ThemeSchemaMismatch'); total += size(theme.length, 1048576); hex(theme.sha256);
+  }
+  requireThat(total <= 8*1024*1024, 'ThemeExpandedLimit');
 }
 export function route(request) {
   const url = new URL(request.url);
@@ -122,17 +152,18 @@ function managedVersion(manifest, packageId) {
   return version(first.version);
 }
 export function selectedPackage(index, path) {
-  const managed = index.schemaVersion === 3;
-  requireThat(managed || index.schemaVersion === 1, "UnsupportedSchema");
-  const matches = index.packages.filter(p => p && p.id === path.package && (managed ? managedVersion(p.manifest, p.id) : p.version) === path.version);
+  const managed = index.schemaVersion === 3, theme = index.schemaVersion === 4;
+  requireThat(managed || theme || index.schemaVersion === 1, "UnsupportedSchema");
+  const matches = index.packages.filter(p => p && p.id === path.package && (theme ? p.manifest?.version : managed ? managedVersion(p.manifest, p.id) : p.version) === path.version);
   requireThat(matches.length === 1, "PackageNotFound", 404); const record = matches[0];
   requireThat(record.state === 'active', "PackageUnavailable", 410);
-  requireThat(record.channel === 'github-release' && record.artifact?.payloadKind === (managed ? 'managed-dll-zip' : 'rimworld-mod-zip'), "PayloadNotSupported", 422);
+  requireThat(record.channel === 'github-release' && record.artifact?.payloadKind === (theme ? 'theme-zip' : managed ? 'managed-dll-zip' : 'rimworld-mod-zip'), "PayloadNotSupported", 422);
+  if (theme) { requireThat(record.management === 'phinix-theme', 'ThemeIdentityMismatch'); validateThemeManifest(record.manifest, record.id); }
   if (managed) requireThat(record.management === 'phinix-dll' && (record.manifest?.schemaVersion === 2 ||
     record.manifest?.schemaVersion === 1 && record.manifest.management === 'phinix-dll' && record.manifest.packageId === record.id), 'ManagedIdentityMismatch');
   const a = object(record.artifact, ["repository", "repositoryId", "ownerId", "sourceCommit", "tag", "releaseId", "assetId", "assetName", "payloadKind", "sha256", "manifestSha256", "sizeBytes"]);
   repository(a.repository); for (const key of ['repositoryId', 'ownerId', 'releaseId', 'assetId']) positiveId(a[key]);
-  hex(a.sourceCommit, 40); hex(a.sha256); hex(a.manifestSha256); size(a.sizeBytes, MAX_PACKAGE);
+  hex(a.sourceCommit, 40); hex(a.sha256); hex(a.manifestSha256); size(a.sizeBytes, theme ? 8*1024*1024 : MAX_PACKAGE);
   requireThat(a.sha256 === path.hash, "ArtifactDigestMismatch", 404);
   requireThat(a.tag === path.version || a.tag === 'v' + path.version, "ArtifactIdentityMismatch");
   requireThat(typeof a.assetName === 'string' && /^[A-Za-z0-9][A-Za-z0-9._-]{0,127}\.zip$/.test(a.assetName) && !/^(con|prn|aux|nul|com[0-9]|lpt[0-9])\./i.test(a.assetName), "InvalidAssetName");
