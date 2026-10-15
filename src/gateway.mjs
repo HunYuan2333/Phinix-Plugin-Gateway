@@ -75,17 +75,9 @@ export function createGateway({ fetcher = (...args) => fetch(...args), sink, dig
       } else trace.event('cache.r2_bypass', { reason: 'NotConfigured' });
       let writer = null;
       if (!body) {
-        // Catalog authority always uses the original credential. A separately scoped
-        // credential may serve one approved package owner only, after catalog proof.
-        if (env.PACKAGE_TOKEN_OWNER_ID !== undefined) {
-          requireThat(typeof env.PACKAGE_TOKEN_OWNER_ID === 'string' && /^[1-9][0-9]{0,19}$/.test(env.PACKAGE_TOKEN_OWNER_ID), 'InvalidPackageCredentialOwner', 503);
-          if (asset.ownerId === env.PACKAGE_TOKEN_OWNER_ID) {
-            const token = env.GITHUB_PACKAGE_TOKEN;
-            requireThat(typeof token === 'string' && token.length > 0 && token.length <= 256 && !/\s/.test(token), 'PackageCredentialsMissing', 503);
-            origin.useToken(token);
-          }
-        }
-        await origin.assetIdentity(asset, path.version); const upstream = await origin.bytes(asset); body = upstream.body;
+        const delivery = index.schemaVersion === 4 ? await origin.themeMirror(identity, asset) : asset;
+        await origin.assetIdentity(delivery, index.schemaVersion === 4 ? null : path.version);
+        const upstream = await origin.bytes(delivery); body = upstream.body;
         if (stub && asset.sizeBytes <= 8 * 1024 * 1024) writer = startFill(stub, entry, trace, context, cachePipeFactory);
         else trace.event('cache.fill_skipped', { reason: stub ? 'PocSizeLimit' : 'NotConfigured' });
       }

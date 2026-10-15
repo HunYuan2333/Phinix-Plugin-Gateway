@@ -13,8 +13,8 @@ test('formal and transitional deployment commands retain the same official route
 });
 test('production cannot accidentally enable PoC storage, admin exports or arbitrary sources',async()=>{
   const production=await read('wrangler.production.jsonc');
-  assert.equal(production.vars.PACKAGE_TOKEN_OWNER_ID,'342817783');
   assert.equal(production.main,'src/read-only.mjs');assert.equal(production.vars.REPOSITORY_ENABLED,'true');
+  assert.equal(production.vars.PACKAGE_TOKEN_OWNER_ID,undefined);
   assert.equal(production.vars.POC_MODE,'false');assert.equal(production.vars.R2_ENABLED,'false');
   for(const key of ['durable_objects','r2_buckets','services'])assert.equal(production[key],undefined);
   for(const key of ['GITHUB_TOKEN','GITHUB_PACKAGE_TOKEN','POC_ACCESS_TOKEN','CACHE_CONFIG','CACHE_OPERATIONS_ENABLED'])assert.equal(production.vars[key],undefined);

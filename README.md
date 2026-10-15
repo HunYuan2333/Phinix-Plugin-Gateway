@@ -74,3 +74,17 @@ Protocol fixtures are pinned and self-contained under [`tests/fixtures/`](tests/
 - **Deployment Guide**: [`DEPLOYMENT.md`](DEPLOYMENT.md) — Step-by-step production deployment commands and build auditing.
 - **Audit & Diagnostics**: [`AUDIT.md`](AUDIT.md) — Request ID correlation, error codes, and origin fault isolation.
 - **Rollback Procedure**: In case of routing or proxy regressions, maintainers execute `wrangler rollback <VERSION_ID> -c wrangler.production.jsonc` to revert to a previously verified worker deployment.
+
+
+### Third-party theme delivery
+
+Reviewed schema4 themes from any public author use the same distribution path:
+Index validates original source and ZIP bytes, publishes hash-addressed ZIP copies
+with the immutable catalog Release, and CF verifies/streams those copies using its
+existing Index credential. No per-author secret or organization allowlist is
+required. The client format and original author provenance are unchanged.
+
+Production currently caches metadata only; R2 and edge ZIP caching remain off.
+The verified cache layer supports third-party theme fill/hit in white-box tests,
+but this is not a claim that production caches ZIP bodies. See
+[publication evidence](docs/theme-feed-publication-2026-10-15.md).

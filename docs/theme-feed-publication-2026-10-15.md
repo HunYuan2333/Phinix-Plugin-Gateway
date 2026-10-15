@@ -28,3 +28,37 @@ Package credentials may now be scoped to one approved owner through nonsecret `P
 Production and transitional configurations select organization owner ID `342817783`. Before deploying this follow-up, add `GITHUB_PACKAGE_TOKEN` to the existing Worker: a credential owned by `Phinix-Rework-Themes`, covering the two public theme repositories, with Metadata/Contents read only. Do not replace the original personal-repository credential. Secret values must never enter source, chat or reports.
 
 At preparation time only the existing `GITHUB_TOKEN` secret name was present; the credential-routing follow-up has not yet been deployed. Verification: 169 Node tests, native workerd regression and production dry-run passed. Python operations (5), network (5) and live-probe (4) checks passed. A live original-plugin CF catalog/cache/304 revalidation check also passed against the unchanged snapshot and digest above (19 catalog records). This live check exercised the deployed theme-feed gateway, not the pending credential-routing deployment. CF theme package delivery and game acceptance remain pending.
+
+
+## Superseding correction: arbitrary approved third-party themes
+
+The owner-specific credential proposal above was withdrawn before deployment.
+It is not the general third-party theme design, and no new organization secret
+is required. Index now preserves the original author artifact record but also
+publishes a byte-identical `theme-<ZIP SHA256>.zip` asset alongside catalog.json in
+the same controlled snapshot Release. Publication validates any public author's
+source/ZIP/manifest/XML and redistribution permission is part of maintainer review;
+no author or organization allowlist is introduced. Stored mirror bytes are
+redownloaded and verified before the Release/pointer becomes public. Public assets
+are never clobbered in place. Record schema and client transports remain unchanged.
+
+For schema4 theme requests CF selects the hash-addressed mirror from the exact
+trusted catalog Release, verifies membership/size/hash, and applies the existing
+stream verifier. It uses the existing Index credential only, never contacts the
+author repository and never needs an author's secret. Original author identity
+remains in the approved record and installed provenance; GitHub direct still
+returns the author's original bytes. Old schema1/3 plugin delivery is unchanged.
+Older theme snapshots without mirrors require refreshing to a new publication.
+
+This is persistent distribution hosting in GitHub Releases, not enabled Cloudflare
+ZIP caching. Production keeps R2 and edge ZIP storage disabled. White-box checks
+prove the existing verified R2 layer can fill and hit a third-party theme using
+its existing source/package/version/hash key, and reject bad streams; they do not
+claim production cache is enabled. Metadata caching remains enabled.
+
+Verification for this correction: 137 Index tests (one existing skip), 162 Node
+tests and native workerd/production dry-run passed. Tests include an unrelated
+third-party owner with no author network access, missing/duplicate/wrong-size/
+wrong-digest/corrupt mirror assets, withdrawn records, cache fill/hit and byte
+revalidation on publication retry. Actual publication/deployment and live results
+are recorded below after verification.

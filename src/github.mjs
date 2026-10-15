@@ -27,10 +27,6 @@ export class GitHubOrigin {
     this.repos = new Map(); this.releases = new Map();
     this.metadataCache = metadataCache; this.metadataTtlMs = metadataTtlMs; this.fresh = fresh; this.metadataAgeSeconds = 0;
   }
-  useToken(token) {
-    // Identity caches belong to the credential scope; request/time budgets do not reset.
-    this.token = token; this.repos.clear(); this.releases.clear();
-  }
   async call(url, accept, binary = false) {
     if (!binary && this.metadataCache && this.metadataTtlMs > 0 && !this.fresh) {
       requireThat(this.deadline - this.now() > 0, 'OriginTotalTimeout', 503);
@@ -134,6 +130,24 @@ export class GitHubOrigin {
     requireThat(Array.isArray(release.assets) && release.assets.some(a => apiId(a.id) === identity.assetId && a.name === identity.assetName && a.size === identity.sizeBytes), 'OriginAssetMembershipMismatch');
     if (asset.digest != null) requireThat(asset.digest === 'sha256:' + identity.sha256, 'OriginDigestMismatch');
     this.trace.event('origin.identity_verified', { stage: 'asset', expectedBytes: identity.sizeBytes });
+  }
+  async themeMirror(publication, approved) {
+    // The trusted publication release owns delivery bytes; the catalog retains
+    // the author's original repository identity and immutable provenance.
+    requireThat(approved.payloadKind === 'theme-zip', 'ThemeMirrorPayloadRejected');
+    await this.repo(publication.repository, publication.repositoryId, publication.ownerId);
+    const release = await this.release(publication.repository, publication.releaseId);
+    const name = 'theme-' + approved.sha256 + '.zip';
+    requireThat(Array.isArray(release.assets), 'OriginAssetMembershipMismatch');
+    const matches = release.assets.filter(asset => asset.name === name);
+    requireThat(matches.length === 1, 'ThemeMirrorAssetMissing');
+    const asset = matches[0];
+    requireThat(asset.state === 'uploaded' && asset.size === approved.sizeBytes &&
+      (asset.digest == null || asset.digest === 'sha256:' + approved.sha256), 'ThemeMirrorAssetMismatch');
+    this.trace.event('origin.theme_mirror_selected', { expectedBytes: approved.sizeBytes });
+    return { repository: publication.repository, repositoryId: publication.repositoryId, ownerId: publication.ownerId,
+      releaseId: publication.releaseId, assetId: apiId(asset.id), assetName: name,
+      sizeBytes: approved.sizeBytes, sha256: approved.sha256 };
   }
   async bytes(identity) {
     let url = 'https://api.github.com/repos/' + identity.repository + '/releases/assets/' + identity.assetId;
