@@ -76,3 +76,11 @@ are recorded below after verification.
 - Neither transport-only check proves game UI acceptance. Subsequent player feedback identified a client theme-selection restore defect; local Host 0.10.4 repairs it and allows metadata caching on ordinary theme refresh while keeping the final installation recheck fresh. That Host patch requires separate client/game acceptance.
 
 No organization-specific secret is needed. Production ZIP/R2 caching remains disabled; verified public Release mirrors provide persistent distribution hosting independently of player anonymous GitHub quota.
+
+### Subsequent cache activation
+
+The preceding statements about disabled production ZIP caches describe the earlier
+mirror-only deployment. On explicit user authorization, production edge Cache API
+and private R2 caching were enabled and live verified. Current evidence, limits,
+rollback constraints and operations-bridge limitation are in
+[production-cache-2026-10-15.md](production-cache-2026-10-15.md).

@@ -73,3 +73,19 @@ Primary platform references:
 - https://developers.cloudflare.com/workers/runtime-apis/cache/
 - https://developers.cloudflare.com/workers/reference/how-the-cache-works/
 - https://developers.cloudflare.com/durable-objects/best-practices/access-durable-objects-storage/
+
+## Deployed and live verified
+
+- Source commit: `a826166b6d9f69c5b19cd06944e702fd2e72cdbb`; CI run 38709690756 succeeded.
+- Worker version: `13d64673-c272-451b-bfcc-9a580a10b788`; BUILD_ID `production-20261015-edge-r2-cache`.
+- Configuration SHA256: `5c01ab2c8142aa02c795793f54217c731a13c64e7871ede1189d36da59488a6a`.
+- Dry-run bundle SHA256: `baaae2b76510a1637c2b6b6486c24daccd5deb71258fa5ce216c9e8d86443de4`.
+- Both production domains remain on the existing service. Private R2 bucket creation succeeded; old PoC bucket was untouched.
+- Actual client CF metadata, theme ZIP/XML verification, isolated install and receipt reload passed for both published themes.
+- Daylight returned `X-Phinix-Cache: r2`, then `edge` on the primary domain; its first request on the alias returned `r2`. All three responses were 1807 bytes with SHA256 `8d5bcbaf36c50fbb57f77c764aa309e68ddde6866218a5809c1f7aac4d65c3be`. The first scripted request found R2 already warmed by the preceding actual-client probe; do not label that scripted request as a cold origin hit.
+- Edge hit request ID: `ee8abb97-b96b-412f-952e-8a9530be3b73`; alias R2 hit: `8a8057ee-ae40-4a8f-8fac-cd21ba090013`.
+- Independent Wrangler remote object download from the private R2 bucket returned the same approved Daylight digest, establishing persisted bytes separately from gateway headers.
+- Original plugin source remained unchanged. Actual Example 1.1.2 CF download, ZIP/PE validation, fresh pre/post-transfer proof, cancellation and metadata 304 passed: 42552 bytes, SHA256 `4db3e4f95f24c752d7733aac65985764ab4e5477b92f5f303a5d803684d0e49a`, original snapshot `ac45d5eb450fb9906e3d7d1b5ce48ed0702919d5`.
+- Limitation: local-to-production Wrangler service-binding inspection returned OperationsRpcTimeout (request `141df9bd-605c-4900-b9a1-bef2b191d3ef`). Native internal RPC passed, but production inspection must not be marked passed. Public R2/edge serving and independent R2 object read passed; no recovery/reset/delete was attempted. Further remote operations-bridge diagnosis remains separate.
+
+These are live distribution/cache checks, not a new RimWorld gameplay acceptance claim. No client or plugin update is needed solely to use this server-side cache rollout.
