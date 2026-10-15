@@ -8,7 +8,7 @@ function deadline(promise, milliseconds, code) {
 }
 // One upstream reader. The optional cache writer shares backpressure for <=200ms;
 // no ReadableStream.tee()/Response.clone() can accumulate an unbounded slow branch.
-export function verifiedStream(body, expected, trace, { digestFactory = () => new crypto.DigestStream('SHA-256'), cacheWriter = null, idleMs = 6000, totalMs = 30000, lagMs = 200 } = {}) {
+export function verifiedStream(body, expected, trace, { digestFactory = () => new crypto.DigestStream('SHA-256'), cacheWriter = null, onFailure = null, idleMs = 6000, totalMs = 30000, lagMs = 200 } = {}) {
   const reader = body.getReader(), hasher = digestFactory(), hashWriter = hasher.getWriter();
   hasher.digest.catch(() => {});
   const started = Date.now(); let bytes = 0, cache = cacheWriter, ended = false;
@@ -21,6 +21,7 @@ export function verifiedStream(body, expected, trace, { digestFactory = () => ne
   async function fail(controller, error) {
     if (ended) return; ended = true;
     reader.cancel(error).catch(() => {}); hashWriter.abort(error).catch(() => {}); await dropCache(safeError(error));
+    try { onFailure?.(); } catch { /* Cache cleanup cannot hide the stream error. */ }
     trace.event('stream.failed', { reason: safeError(error), bytes, expectedBytes: expected.sizeBytes }, 'error');
     trace.finish(502, safeError(error), bytes); controller.error(error);
   }

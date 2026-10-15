@@ -6,7 +6,7 @@ import { CacheOperations } from './cache-operations.mjs';
 
 export class CacheCoordinatorCore {
   constructor(storage, env, { sink, now = Date.now, digestFactory } = {}) {
-    this.env = env; this.sink = sink; this.now = now; this.config = cacheConfig(env);
+    this.env = env; this.sink = sink; this.now = now; this.config = cacheConfig(env, now());
     this.ledger = new CacheLedger(storage, this.config, now); this.active = new Set(); this.bootstrap = null;
     this.operations = new CacheOperations(this, { digestFactory });
   }
@@ -36,6 +36,7 @@ export class CacheCoordinatorCore {
       requireThat(path === '/get' || path === '/put', 'RouteNotFound', 404);
       const descriptor = path === '/get' ? strictJson(await boundedBody(request, 2048), 2048) : strictJson(new TextEncoder().encode(request.headers.get('X-Phinix-Cache-Entry') ?? ''), 2048);
       const entry = cacheEntry(descriptor); trace.base.source = entry.source; trace.base.package = entry.package; trace.base.version = entry.version; trace.base.sha256 = entry.sha256;
+      this.ledger.advanceBudgetWindow(trace);
       await this.initialize(trace); this.ledger.check(this.ledger.meta());
       return path === '/get' ? await this.get(entry, trace) : await this.put(entry, request.body, trace);
     } catch (error) { if (request.body) request.body.cancel().catch(() => {}); return errorResponse(error, trace); }

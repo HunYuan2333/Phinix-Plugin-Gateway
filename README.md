@@ -30,14 +30,15 @@ The official Cloudflare access adapter for the Phinix plugin distribution infras
 
 ## Runtime Configuration & Limits
 
-Production runs `src/read-only.mjs` configured by `wrangler.production.jsonc`:
+Production runs `src/cached.mjs` configured by `wrangler.production.jsonc`:
 
 | Setting | Value / Policy | Description |
 | :--- | :--- | :--- |
 | **Worker Service** | `phinix-plugin-repository-staging` | Shared Cloudflare service name |
-| **Request Limiter** | 30 requests / 60 seconds | Enforces per-IP burst protection via `REQUEST_LIMITER` |
+| **Request Limiter** | 30 requests / 60 seconds | Enforces aggregate per-location burst protection via `REQUEST_LIMITER` |
 | **Metadata Cache** | 30 seconds TTL | Edge caching for origin catalog pointers |
-| **Storage Bindings** | None (`R2_ENABLED: false`) | R2 and Durable Objects are disabled in production |
+| **Package Cache** | Edge Cache API + private R2 + SQLite DO | 256 MiB capacity; 8 MiB maximum cached package |
+| **R2 operation budgets** | 10,000 Class A / 100,000 Class B per UTC month | Exhaustion bypasses cache; uncertain writes retain their capacity |
 | **Origin Token** | Read-only GitHub Token | Injected via Cloudflare Worker secrets for GitHub API access |
 
 > [!IMPORTANT]
@@ -84,7 +85,8 @@ with the immutable catalog Release, and CF verifies/streams those copies using i
 existing Index credential. No per-author secret or organization allowlist is
 required. The client format and original author provenance are unchanged.
 
-Production currently caches metadata only; R2 and edge ZIP caching remain off.
-The verified cache layer supports third-party theme fill/hit in white-box tests,
-but this is not a claim that production caches ZIP bodies. See
+Production enables metadata caching, verified edge ZIP caching and a private R2
+package cache for both plugins and approved third-party themes. Cache hits still
+require current catalog approval and full byte verification. Edge storage is
+best effort and local to a Cloudflare location. See [cache rollout](docs/production-cache-2026-10-15.md). See
 [publication evidence](docs/theme-feed-publication-2026-10-15.md).

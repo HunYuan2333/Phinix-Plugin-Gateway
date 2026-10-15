@@ -15,6 +15,7 @@ export class CacheOperations {
       requireThat(core.env.CACHE_OPERATIONS_ENABLED === 'true', 'CacheOperationsDisabled', 403);
       object(input, action === 'inspect' ? ['schemaVersion', 'epoch', 'period'] : ['schemaVersion', 'epoch', 'period', 'entry', 'lease', 'fingerprint']);
       requireThat(input.schemaVersion === 1 && /^[a-z0-9-]{1,64}$/.test(input.epoch ?? '') && /^[a-z0-9-]{1,64}$/.test(input.period ?? ''), 'InvalidRecoveryInput', 400);
+      core.ledger.advanceBudgetWindow(trace);
       const meta = core.ledger.meta();
       requireThat(meta.epoch === input.epoch && meta.period === input.period && meta.epoch === core.config.epoch && meta.period === core.config.period && meta.start === core.config.start && meta.end === core.config.end, 'CacheRecoveryTargetMismatch', 409);
       trace.base.period = meta.period;

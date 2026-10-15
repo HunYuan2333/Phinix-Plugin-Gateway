@@ -19,7 +19,7 @@ WRANGLER_SEND_METRICS=false npm run check:production
 WRANGLER_SEND_METRICS=false npx --no-install wrangler deploy -c wrangler.production.jsonc
 ```
 
-每次记录源码 commit、bundle/配置摘要、Worker 版本及 BUILD_ID。正式和临时别名配置同批设置独立 BUILD_ID，再提交发行输入。不要发布 default/PoC/ops 配置：它们只供历史测试与内部运维。正式入口不接 R2/DO/管理绑定，限流 namespace 和来源身份保持。
+每次记录源码 commit、bundle/配置摘要、Worker 版本及 BUILD_ID。正式和临时别名配置同批设置独立 BUILD_ID，再提交发行输入。不要发布 default/PoC/ops 配置：它们只供历史测试与内部运维。正式入口已通过 cached.mjs 接入专用 R2 和 SQLite DO，公网仍无管理路由；限流 namespace 和来源身份保持。详见 docs/production-cache-2026-10-15.md。
 
 接管前保存已核实的正式版本。验收失败时执行 `wrangler rollback <VERIFIED_VERSION_ID> -c wrangler.production.jsonc`，重新核对路由、绑定名和真实下载。回滚需维护者实际执行和检查，不能宣称已经自动验证云回滚；它不能恢复已删除的数据。
 
@@ -28,3 +28,5 @@ WRANGLER_SEND_METRICS=false npx --no-install wrangler deploy -c wrangler.product
 旧 PoC 已关闭公开访问，但 Worker/R2/DO/secret 永久删除仍未获具体批准，不随拆仓删除。新入口验收后停用主仓库的部署入口，再移除源码，避免两份配置争抢正式服务。
 
 本仓库暂不启用 CI 云部署。后续如需要，独立配置最小权限 CF 部署凭据、保护正式执行，只发布经过审阅的源码；作者 Issue 和外部 PR 无权部署该服务。
+
+启用 DO 生命周期后，停用缓存须保留 DO 导出/绑定/迁移记录，在新部署中关闭 EDGE_CACHE_ENABLED 和 R2_ENABLED；不删除桶或账本，也不以跨迁移 rollback 作为停用保证。

@@ -2,10 +2,10 @@ import { createGateway } from './gateway.mjs';
 import { requireThat } from './protocol.mjs';
 
 // Public read-only repository adapter: no bucket, ledger or operations exports.
-export function createReadOnlyGateway(options = {}) {
+export function createReadOnlyGateway({ allowCache = false, ...options } = {}) {
   return createGateway({ ...options, metadataNoStore: true, beforeOrigin: async (request, env, trace) => {
     requireThat(env.REPOSITORY_ENABLED === 'true', 'RepositoryClosed', 503);
-    requireThat(env.POC_MODE === 'false' && env.R2_ENABLED === 'false' && !env.PACKAGES && !env.CACHE_COORDINATOR,
+    requireThat(env.POC_MODE === 'false' && (allowCache ? ['true', 'false'].includes(env.R2_ENABLED) && env.PACKAGES && env.CACHE_COORDINATOR : env.R2_ENABLED === 'false' && !env.PACKAGES && !env.CACHE_COORDINATOR),
       'ReadOnlyConfigurationInvalid', 503);
     requireThat(typeof env.GITHUB_TOKEN === 'string' && env.GITHUB_TOKEN.length > 0 && env.GITHUB_TOKEN.length <= 256 &&
       !/\s/.test(env.GITHUB_TOKEN), 'OriginCredentialsMissing', 503);

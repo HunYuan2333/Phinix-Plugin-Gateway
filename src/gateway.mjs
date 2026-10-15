@@ -2,11 +2,14 @@ import { Trace, GatewayError, errorResponse, safeError } from './audit.mjs';
 import { route, sources, stable, published, verifyBytes, catalog, selectedPackage, digest, requireThat, MAX_CATALOG } from './protocol.mjs';
 import { GitHubOrigin, boundedBody } from './github.mjs';
 import { verifiedStream, startFill } from './stream.mjs';
+import { edgeCacheLayer, combineCacheWriters } from './edge-cache.mjs';
 import { OriginMetadataCache } from './origin-metadata-cache.mjs';
 
 export function createGateway({ fetcher = (...args) => fetch(...args), sink, digestFactory, cachePipeFactory, now = Date.now, beforeOrigin, metadataNoStore = false,
+  edgeCache = globalThis.caches?.default,
   responsePipeFactory = typeof FixedLengthStream === 'function' ? size => new FixedLengthStream(size) : null } = {}) {
   const metadataCache = new OriginMetadataCache({ now });
+  const edge = edgeCacheLayer(edgeCache);
   return { async fetch(request, env, context) {
     const trace = new Trace({ sink, now, build: env.BUILD_ID, clientId: request.headers.get('X-Phinix-Client-Request-Id') });
     trace.event('request.accepted');
@@ -57,13 +60,15 @@ export function createGateway({ fetcher = (...args) => fetch(...args), sink, dig
       const entry = { source: path.source, package: path.package, version: path.version, sha256: asset.sha256, sizeBytes: asset.sizeBytes };
       const headers = new Headers({ 'Content-Type': 'application/octet-stream', 'Content-Length': String(asset.sizeBytes), 'ETag': '"sha256-' + asset.sha256 + '"',
         'Cache-Control': 'no-store', 'X-Phinix-Request-Id': trace.id, 'X-Content-Type-Options': 'nosniff' });
-      // Platform edge caching is deliberately off until cold stream failure/Range PoC passes.
-      trace.event('cache.edge_bypass', { reason: 'PlatformPocPending' });
+      const edgeEnabled = env.EDGE_CACHE_ENABLED === 'true';
+      const edgeKey = new Request(request.url, { method: 'GET' });
       const conditional = request.headers.get('If-None-Match');
       if (conditional === headers.get('ETag')) { trace.finish(304, 'NotModified'); return new Response(null, { status: 304, headers }); }
       if (request.method === 'HEAD') { trace.finish(200, 'ApprovedMetadata', asset.sizeBytes); return new Response(null, { headers }); }
-      let body, stub;
-      if (env.R2_ENABLED === 'true' && env.CACHE_COORDINATOR) {
+      let body = edgeEnabled ? await edge.read(edgeKey, asset, trace, context) : null, stub;
+      const edgeHit = !!body;
+      if (!edgeEnabled) trace.event('cache.edge_bypass', { reason: 'NotConfigured' });
+      if (!body && env.R2_ENABLED === 'true' && env.CACHE_COORDINATOR) {
         const id = env.CACHE_COORDINATOR.idFromName('single-bucket-ledger-v1'); stub = env.CACHE_COORDINATOR.get(id);
         try {
           const cached = await stub.fetch(new Request('https://cache.internal/get', { method: 'POST', body: JSON.stringify(entry), headers: { 'X-Phinix-Request-Id': trace.id, ...(trace.base.clientRequestId ? { 'X-Phinix-Client-Request-Id': trace.base.clientRequestId } : {}) } }));
@@ -72,7 +77,8 @@ export function createGateway({ fetcher = (...args) => fetch(...args), sink, dig
             trace.event('cache.r2_hit', { expectedBytes: asset.sizeBytes });
           } else { trace.event('cache.r2_bypass', { status: cached.status, reason: cached.status === 404 ? 'Miss' : 'CoordinatorUnavailable' }, cached.status === 404 ? 'info' : 'warn'); if (cached.body) cached.body.cancel().catch(() => {}); }
         } catch (error) { trace.event('cache.r2_bypass', { reason: safeError(error) }, 'warn'); }
-      } else trace.event('cache.r2_bypass', { reason: 'NotConfigured' });
+      } else if (!body) trace.event('cache.r2_bypass', { reason: 'NotConfigured' });
+      headers.set('X-Phinix-Cache', edgeHit ? 'edge' : body ? 'r2' : 'origin');
       let writer = null;
       if (!body) {
         const delivery = index.schemaVersion === 4 ? await origin.themeMirror(identity, asset) : asset;
@@ -81,8 +87,9 @@ export function createGateway({ fetcher = (...args) => fetch(...args), sink, dig
         if (stub && asset.sizeBytes <= 8 * 1024 * 1024) writer = startFill(stub, entry, trace, context, cachePipeFactory);
         else trace.event('cache.fill_skipped', { reason: stub ? 'PocSizeLimit' : 'NotConfigured' });
       }
+      if (edgeEnabled && !edgeHit) writer = combineCacheWriters(writer, edge.writer(edgeKey, asset, trace, context));
       trace.event('stream.headers_sent', { status: 200, expectedBytes: asset.sizeBytes });
-      const verified = verifiedStream(body, asset, trace, { digestFactory, cacheWriter: writer });
+      const verified = verifiedStream(body, asset, trace, { digestFactory, cacheWriter: writer, onFailure: edgeHit ? () => edge.discard(edgeKey, context) : null });
       let delivered = verified;
       if (responsePipeFactory) {
         // Workers ignores manually supplied Content-Length on a generic ReadableStream.

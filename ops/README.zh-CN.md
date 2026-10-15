@@ -1,6 +1,6 @@
 # 内部缓存检查与读取恢复
 
-仅供历史 PoC 内部运维。正式网关没有管理绑定；拆仓不重新部署退役服务，不执行删除或其他破坏性操作。
+正式缓存检查使用 wrangler.ops.production.jsonc，目标为现有正式服务；原 wrangler.ops.jsonc 仍指向历史 PoC。两种桥接均仅供本机运行，不能部署。检查不会恢复暂停账本、释放未决容量或重置操作计数。
 
 
 [English](README.md) · [审计排查](../AUDIT.zh-CN.md)

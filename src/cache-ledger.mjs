@@ -34,6 +34,25 @@ export class CacheLedger {
     this.sql.exec('DELETE FROM audit WHERE seq <= (SELECT COALESCE(MAX(seq),0)-256 FROM audit)');
     if (this.pending) this.pending.push({ event, fields }); else trace.event(event, fields);
   }
+  advanceBudgetWindow(trace) {
+    if (this.config.budgetWindow !== 'utc-month') return;
+    const next = monthlyWindow(this.now());
+    const current = this.meta();
+    if (current.period === next.period && current.start === next.start && current.end === next.end) {
+      requireThat(current.epoch === this.config.epoch, 'CacheLedgerPeriodMismatch', 503);
+      Object.assign(this.config, next); return;
+    }
+    this.transaction(trace, () => {
+      const meta = this.meta();
+      requireThat(meta.schemaVersion === 1 && meta.epoch === this.config.epoch && this.now() >= meta.end && next.start >= meta.end,
+        'CacheLedgerPeriodMismatch', 503);
+      meta.period = next.period; meta.start = next.start; meta.end = next.end; meta.classA = 0; meta.classB = 0;
+      // Only explicitly configured UTC billing counters rotate. Object ownership,
+      // paused/bootstrap states, capacity and uncertain leases never reset.
+      this.setMeta(meta); this.audit(trace, 'cache.budget_window_advanced', { period: next.period, classA: 0, classB: 0 });
+    });
+    Object.assign(this.config, next);
+  }
   assertPeriod(meta) {
     requireThat(meta.schemaVersion === 1 && meta.epoch === this.config.epoch && meta.period === this.config.period && meta.start === this.config.start && meta.end === this.config.end && this.now() >= meta.start && this.now() < meta.end, 'CacheLedgerPeriodMismatch', 503);
   }
@@ -124,11 +143,18 @@ export class CacheLedger {
     this.transaction(trace, () => { requireThat(this.entry(key)?.state === 'deleting', 'CacheDeleteConflict', 409); this.sql.exec('DELETE FROM objects WHERE key=?', key); this.audit(trace, 'cache.delete_committed', { ...this.totals() }); });
   }
 }
-export function cacheConfig(env) {
+export function monthlyWindow(now) {
+  const date = new Date(now), year = date.getUTCFullYear(), month = date.getUTCMonth();
+  requireThat(Number.isFinite(date.getTime()) && year >= 2000 && year <= 9998, 'InvalidCacheClock', 503);
+  return { period: year + '-' + String(month + 1).padStart(2, '0'), start: Date.UTC(year, month, 1), end: Date.UTC(year, month + 1, 1) };
+}
+export function cacheConfig(env, now = Date.now()) {
   const c = typeof env.CACHE_CONFIG === 'string' ? strictJson(new TextEncoder().encode(env.CACHE_CONFIG)) : env.CACHE_CONFIG;
   object(c, ['epoch', 'period', 'start', 'end', 'capacity', 'classA', 'classB', 'emptyConfirmed', 'maxFillBytes']);
   requireThat(typeof c.epoch === 'string' && /^[a-z0-9-]{1,64}$/.test(c.epoch) && typeof c.period === 'string' && /^[a-z0-9-]{1,64}$/.test(c.period), 'InvalidCacheConfiguration', 503);
   requireThat(Number.isSafeInteger(c.start) && Number.isSafeInteger(c.end) && c.start < c.end, 'InvalidCacheConfiguration', 503);
   size(c.capacity, 9000000000); size(c.classA, 800000); size(c.classB, 8000000); size(c.maxFillBytes, 8 * 1024 * 1024);
-  requireThat(typeof c.emptyConfirmed === 'boolean', 'InvalidCacheConfiguration', 503); return c;
+  requireThat(typeof c.emptyConfirmed === 'boolean', 'InvalidCacheConfiguration', 503);
+  requireThat(env.CACHE_BUDGET_WINDOW === undefined || env.CACHE_BUDGET_WINDOW === 'utc-month', 'InvalidCacheConfiguration', 503);
+  return env.CACHE_BUDGET_WINDOW === 'utc-month' ? { ...c, ...monthlyWindow(now), budgetWindow: 'utc-month' } : c;
 }

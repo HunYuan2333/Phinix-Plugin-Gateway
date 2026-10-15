@@ -1,6 +1,6 @@
 # Internal cache inspection and read recovery
 
-Historical PoC operations only. Production has no management binding; do not deploy the retired service or run destructive operations as part of repository migration.
+Production inspection uses wrangler.ops.production.jsonc and the existing production service. wrangler.ops.jsonc continues to target the historical PoC. Both bridges are local-only; never deploy them. Inspection does not reset counters, resume a paused cache or release uncertain capacity.
 
 
 [中文](README.zh-CN.md) · [Audit runbook](../AUDIT.md)

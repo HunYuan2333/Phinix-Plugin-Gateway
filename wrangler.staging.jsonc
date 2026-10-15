@@ -2,7 +2,7 @@
   "$schema": "node_modules/wrangler/config-schema.json",
   "name": "phinix-plugin-repository-staging",
   "account_id": "0a5846aaeab66b9368b987da73865226",
-  "main": "src/read-only.mjs",
+  "main": "src/cached.mjs",
   "compatibility_date": "2026-10-03",
   "workers_dev": false,
   "preview_urls": false,
@@ -28,12 +28,16 @@
     }
   },
   "vars": {
-    "BUILD_ID": "production-20261015-public-theme-mirrors",
+    "BUILD_ID": "production-20261015-edge-r2-cache",
     "POC_MODE": "false",
-    "R2_ENABLED": "false",
+    "R2_ENABLED": "true",
     "ORIGIN_METADATA_CACHE_SECONDS": "30",
     "SOURCES": "[{\"sourceId\":\"phinix.official\",\"repository\":\"HunYuan2333/Phinix-Plugin-Index\",\"repositoryId\":\"1402564805\",\"ownerId\":\"64630568\",\"publicationBranch\":\"main\"},{\"sourceId\":\"phinix.themes\",\"repository\":\"HunYuan2333/Phinix-Plugin-Index\",\"repositoryId\":\"1402564805\",\"ownerId\":\"64630568\",\"publicationBranch\":\"themes\"}]",
-    "REPOSITORY_ENABLED": "true"
+    "REPOSITORY_ENABLED": "true",
+    "EDGE_CACHE_ENABLED": "true",
+    "CACHE_OPERATIONS_ENABLED": "true",
+    "CACHE_BUDGET_WINDOW": "utc-month",
+    "CACHE_CONFIG": "{\"epoch\":\"production-cache-20261015-v1\",\"period\":\"2026-10\",\"start\":1790812800000,\"end\":1793491200000,\"capacity\":268435456,\"classA\":10000,\"classB\":100000,\"maxFillBytes\":8388608,\"emptyConfirmed\":true}"
   },
   "ratelimits": [
     {
@@ -43,6 +47,28 @@
         "limit": 30,
         "period": 60
       }
+    }
+  ],
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "CACHE_COORDINATOR",
+        "class_name": "CacheCoordinator"
+      }
+    ]
+  },
+  "migrations": [
+    {
+      "tag": "production-cache-v1",
+      "new_sqlite_classes": [
+        "CacheCoordinator"
+      ]
+    }
+  ],
+  "r2_buckets": [
+    {
+      "binding": "PACKAGES",
+      "bucket_name": "phinix-plugin-cache-production-20261015"
     }
   ]
 }

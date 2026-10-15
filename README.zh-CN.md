@@ -30,14 +30,15 @@ Phinix 插件分发基础设施的官方 Cloudflare 访问适配器。
 
 ## 生产配置与运行限制
 
-生产环境运行 `src/read-only.mjs`，配置文件为 `wrangler.production.jsonc`：
+生产环境运行 `src/cached.mjs`，配置文件为 `wrangler.production.jsonc`：
 
 | 配置项 | 设定值 / 策略 | 说明 |
 | :--- | :--- | :--- |
 | **Worker 服务名** | `phinix-plugin-repository-staging` | 生产基础设施服务标识 |
-| **请求速率限制** | 30 次 / 60 秒 | 通过 `REQUEST_LIMITER` 对客户端 IP 执行频次治理 |
+| **请求速率限制** | 30 次 / 60 秒 | 通过 `REQUEST_LIMITER` 限制每个接入位置的总请求频次 |
 | **元数据缓存时间** | 30 秒 TTL | 对上游权威元数据指针进行边缘缓存 |
-| **存储绑定** | 未绑定 (`R2_ENABLED: false`) | 生产环境未启用 R2，亦未绑定 Durable Objects |
+| **包缓存** | 边缘 Cache API + 私有 R2 + SQLite DO | 容量 256 MiB，单包缓存上限 8 MiB |
+| **R2 操作预算** | 每 UTC 月 Class A 10,000 / Class B 100,000 | 耗尽时回源；未决写入不释放预留 |
 | **回源凭证** | 只读 GitHub Token | 通过 Cloudflare Worker 秘密变量注入，仅用于回源 API 调用 |
 
 > [!IMPORTANT]
@@ -73,4 +74,6 @@ WRANGLER_SEND_METRICS=false npm run test:native
 
 - **部署指南**：[`DEPLOYMENT.zh-CN.md`](DEPLOYMENT.zh-CN.md) — 生产环境部署命令、参数核对及构建审计。
 - **审计与诊断**：[`AUDIT.zh-CN.md`](AUDIT.zh-CN.md) — 请求 ID 关联、故障编号及回源诊断。
-- **版本回滚**：若生产路由或代理出现异常，维护人员通过 `wrangler rollback <VERSION_ID> -c wrangler.production.jsonc` 回退至已验证的历史部署版本。
+- **版本回滚**：若生产路由或代理出现异常，启用 DO 后应保留其导出、绑定和迁移记录，通过新部署关闭 EDGE_CACHE_ENABLED / R2_ENABLED 回到直接回源模式；不要假定可以跨 DO 生命周期回退到旧版本。
+
+生产缓存按“当前目录审批 → 边缘缓存 → R2 → 已批准上游”读取。所有命中继续校验长度、EOF 和 SHA256；已撤回的包不能靠缓存提供。第三方主题沿用同一链路，无作者专用令牌。详见 [正式缓存记录](docs/production-cache-2026-10-15.md)。

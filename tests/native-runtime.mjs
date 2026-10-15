@@ -28,8 +28,9 @@ const runtime=new Miniflare(convertV4MiniflareOptions({ log, cf:false, resourceP
   outboundService:async request=>{const response=await mock.fetcher(request.url,{headers:request.headers});return new RuntimeResponse(await response.arrayBuffer(),{status:response.status,headers:Object.fromEntries(response.headers)});}
 }, { name:'operator',modules:true,modulesRoot:opsRoot,scriptPath:join(opsRoot,'local-bridge.js'),compatibilityDate:'2026-10-03',serviceBindings:{REPOSITORY_OPERATIONS:{name:'gateway',entrypoint:'RepositoryOperations'}} },
 { name:'recovery',modules:[{type:'ESModule',path:join(projectRoot,'tests/native-recovery-worker.mjs')},{type:'ESModule',path:join(bundleRoot,'index.js')}],modulesRoot:projectRoot,compatibilityDate:'2026-10-03',bindings:testEnv({CACHE_CONFIG:JSON.stringify(config),CACHE_OPERATIONS_ENABLED:'true'}),durableObjects:{CACHE_COORDINATOR:{className:'RecoveryFaultCoordinator',useSQLite:true}},r2Buckets:{PACKAGES:'native-recovery-isolated'} },
-{ name:'staging',modules:true,modulesRoot:stagingRoot,scriptPath:join(stagingRoot,'read-only.js'),compatibilityDate:'2026-10-03',
-  bindings:testEnv({REPOSITORY_ENABLED:'true',POC_MODE:'false',GITHUB_TOKEN:'SECRET_NATIVE_STAGING'}),
+{ name:'staging',modules:true,modulesRoot:stagingRoot,scriptPath:join(stagingRoot,'cached.js'),compatibilityDate:'2026-10-03',
+  bindings:testEnv({REPOSITORY_ENABLED:'true',POC_MODE:'false',GITHUB_TOKEN:'SECRET_NATIVE_STAGING',R2_ENABLED:'true',EDGE_CACHE_ENABLED:'true',CACHE_CONFIG:JSON.stringify(config),CACHE_OPERATIONS_ENABLED:'true'}),
+  durableObjects:{CACHE_COORDINATOR:{className:'CacheCoordinator',useSQLite:true}},r2Buckets:{PACKAGES:'production-native-cache'},
   ratelimits:{REQUEST_LIMITER:{namespace_id:'233310041',simple:{limit:30,period:60}}},
   outboundService:async request=>{const response=await mock.fetcher(request.url,{headers:request.headers});return new RuntimeResponse(await response.arrayBuffer(),{status:response.status,headers:Object.fromEntries(response.headers)});}
 }
@@ -39,7 +40,11 @@ try {
   const staging=await runtime.getWorker('staging');
   const anonymous=await staging.fetch(root+'/stable');assert.equal(anonymous.status,200);assert.equal(anonymous.headers.get('Cache-Control'),'no-store');assert.deepEqual(new Uint8Array(await anonymous.arrayBuffer()),data.stable);
   const stagingUrl=`${root}/snapshots/${data.snapshot}/packages/a/1.0.0/${sha(data.payload)}/package`;
-  const stagingZip=await staging.fetch(stagingUrl);assert.equal(stagingZip.status,200);assert.equal(stagingZip.headers.get('Content-Length'),String(data.payload.length));assert.deepEqual(new Uint8Array(await stagingZip.arrayBuffer()),data.payload);
+  const stagingZip=await staging.fetch(stagingUrl);assert.equal(stagingZip.status,200);assert.equal(stagingZip.headers.get('X-Phinix-Cache'),'origin');assert.equal(stagingZip.headers.get('Content-Length'),String(data.payload.length));assert.deepEqual(new Uint8Array(await stagingZip.arrayBuffer()),data.payload);
+  const productionBucket=await runtime.getR2Bucket('PACKAGES','staging');
+  for(let n=0;n<30 && !(await productionBucket.get(`test.local/packages/a/1.0.0/${sha(data.payload)}/package`));n++)await new Promise(resolve=>setTimeout(resolve,50));
+  assert(await productionBucket.get(`test.local/packages/a/1.0.0/${sha(data.payload)}/package`),'Production entrypoint must fill R2');
+  const warmProduction=await staging.fetch(stagingUrl);assert.equal(warmProduction.headers.get('X-Phinix-Cache'),'edge');assert.deepEqual(new Uint8Array(await warmProduction.arrayBuffer()),data.payload);
   assert.equal((await staging.fetch(root+'/stable',{method:'POST'})).status,405);
   const metadata=await runtime.dispatchFetch(root+'/stable');assert.equal(metadata.status,200);assert.deepEqual(new Uint8Array(await metadata.arrayBuffer()),data.stable);
   const url=`${root}/snapshots/${data.snapshot}/packages/a/1.0.0/${sha(data.payload)}/package`;
